@@ -1,0 +1,27 @@
+{% extends 'app/layouts/page.html' %}
+
+{% block content %}
+<header>
+  <h1>{{ election.name }}</h1>
+  <p class="lead">{{ election.description }}</p>
+</header>
+
+<p>{{ election.votes.count }} votes</p>
+
+{% if voted %}
+<p>You have already voted in this election.</p>
+{% else %}
+
+<div class="row">
+{% for candidate in election.candidates.all %}
+<div class="col-md-4">
+<div class="card card-body">
+  <h2>{{ candidate.user.get_username }}</h2>
+  <p class="mb-0"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
+</div>
+</div>
+{% endfor %}
+</div>
+
+{% endif %}
+{% endblock %}

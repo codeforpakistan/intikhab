@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand-lg bg-success" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'index' %}">Intikhab</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'election_list' %}">Elections</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        {% if request.user.is_authenticated %}
+        <li><a class="nav-link" href="{% url 'profile' %}">{{ request.user.get_username }}</a></li>
+        {% if request.user.is_superuser %}
+        <li><a class="nav-link" href="{% url 'admin:index' %}">Manage</a></li>
+        {% endif %}
+        <li><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+        <li><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,8 @@
+{% extends 'app/layouts/page.html' %}
+
+{% block content %}
+<h1>Elections</h1>
+{% for election in elections %}
+<p><a href="{% url 'election_detail' election.id %}">{{ election.name }}</a></p>
+{% endfor %}
+{% endblock %}

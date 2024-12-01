@@ -1,0 +1,13 @@
+{% extends 'app/layouts/page.html' %}
+
+{% block content %}
+<h1>{{ request.user.get_username }}</h1>
+
+<p class="lead">Elections you have voted in:</p>
+<ul>
+{% for vote in votes %}
+<li><a href="{% url 'election_detail' vote.election.id %}">{{ vote.election.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}
