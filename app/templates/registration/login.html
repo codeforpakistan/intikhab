@@ -1,16 +1,14 @@
-{% extends "app/layouts/blank.html" %}
+{% extends "app/layouts/base.html" %}
 
 {% block page %}
-<div class="container p-5">
-  <div class="row">
-    <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mx-auto">
-      <form class="card card-body" action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        <p><input class="form-control" type="text" name="username" placeholder="Username"></p>
-        <p><input class="form-control"type="password" name="password" placeholder="Password"></p>
-        <p class="d-grid mb-0"><input class="btn btn-primary" type="submit" value="Login"></p>
-      </form>
-    </div>
-  </div>
+<div class="d-flex h-100 align-items-center mx-auto w-25">
+  <form class="card card-body" action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <h5 class="card-title mb-3">Login to Intikhab</h5>
+
+    <p><input class="form-control" type="text" name="username" placeholder="Username"></p>
+    <p><input class="form-control" type="password" name="password" placeholder="Password"></p>
+    <p class="d-grid mb-0"><input class="btn btn-primary" type="submit" value="Login"></p>
+  </form>
 </div>
 {% endblock %}

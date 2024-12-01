@@ -17,16 +17,23 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from app.views import index, profile, ElectionListView, ElectionDetailView, vote
+from django.contrib.auth.decorators import login_required
+from django.conf.urls.static import static
+from django.conf import settings
 
 admin.site.site_header = 'Election Management System'
 admin.site.site_title = 'Intikhab'
 
 urlpatterns = [
     path('', index, name='index'),
-    path('elections', ElectionListView.as_view(), name='election_list'),
-    path('elections/<int:pk>', ElectionDetailView.as_view(), name='election_detail'),
+    path('elections', login_required(ElectionListView.as_view()), name='election_list'),
+    path('elections/<int:pk>', login_required(ElectionDetailView.as_view()), name='election_detail'),
     path('elections/<int:election_id>/vote/<int:candidate_id>', vote, name='vote'),
     path('profile', profile, name='profile'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

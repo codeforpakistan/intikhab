@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from app.models import Election, Candidate, Vote
 
 # Create your views here.
-@login_required
 def index(request):
     elections = Election.objects.all()
     return render(request, 'app/index.html', {'elections': elections})
@@ -26,7 +25,6 @@ def vote(request, election_id, candidate_id):
         return redirect('election_detail', pk=election.pk)
     except:
         return redirect('election_detail', pk=election.pk)
-
 
 class ElectionListView(View):
     def get(self, request):

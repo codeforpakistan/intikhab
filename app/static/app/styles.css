@@ -1,0 +1,8 @@
+html[data-theme="light"], :root {
+    --primary: #00585a;
+    --secondary: #00585a;
+    --link-fg: #00585a;
+    --link-selected-fg: #00585a;
+}
+
+html, body { height: 100vh; }
