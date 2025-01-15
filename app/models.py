@@ -7,6 +7,7 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     description = models.TextField()
+    public_key = models.TextField(default="")
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -42,6 +43,7 @@ class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
     ballot = models.CharField(max_length=100)
+    encrypted_vote = models.TextField(default="")
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
