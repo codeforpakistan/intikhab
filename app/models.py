@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from encrypted_model_fields.fields import EncryptedCharField
 
 # Create your models here.
 class Election(models.Model):
@@ -7,7 +8,8 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     description = models.TextField()
-    public_key = models.TextField(default="")
+    private_key = EncryptedCharField(max_length=500, default="")
+    public_key = EncryptedCharField(max_length=500, default="")
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
