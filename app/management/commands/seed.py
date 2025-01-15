@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from app.models import Election, Candidate, Party, Vote
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
+from app.encryption import Encryption
 
 
 class Command(BaseCommand):
@@ -10,8 +11,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            
-            
             # Create groups and assign permissions
             officials = Group.objects.create(name="Officials")
             content_types = ContentType.objects.filter(
@@ -69,6 +68,10 @@ class Command(BaseCommand):
             citizen.save()
             self.stdout.write(self.style.SUCCESS('User created: "%s"' % citizen.username))
 
+            encryption = Encryption()
+            public_key = encryption.paillier.keys['public_key']
+            private_key = encryption.paillier.keys['private_key']
+
         except:
             pass
 
@@ -78,6 +81,8 @@ class Command(BaseCommand):
             start_date="2022-01-01 00:00:00",
             end_date="2022-01-31 23:59:59",
             description="This is a dummy election",
+            public_key=public_key,
+            private_key=private_key,
             active=True,
         )
 
