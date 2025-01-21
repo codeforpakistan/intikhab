@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from encrypted_model_fields.fields import EncryptedCharField
+from app.encryption import Encryption
+import json
 
 # Create your models here.
 class Election(models.Model):
@@ -44,9 +46,38 @@ class Vote(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
-    ballot = EncryptedCharField(max_length=500, default="", editable=False)
+    ballot = EncryptedCharField(max_length=5000, default="", editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.username + " - " + self.election.name
+
+    def save(self, *args, **kwargs):
+        if not self.ballot and hasattr(self, '_candidate'):
+            try:
+                candidates = self.election.candidates.order_by('id')
+                candidate_ids = [candidate.id for candidate in candidates]
+                unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
+                cleaned_key = self.election.public_key.replace("'", '"')
+                public_key = json.loads(cleaned_key)
+                encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+                
+                # Encrypt each vote
+                encrypted_ballot = []
+                for vote in unencrypted_ballot:
+                    encrypted_vote = encryption.encrypt(vote)
+                    encrypted_ballot.append(encrypted_vote.to_json())
+                self.ballot = encrypted_ballot
+                print(f"Encrypted votes: {encrypted_ballot}")
+                delattr(self, '_candidate')
+            except json.JSONDecodeError as e:
+                print(f"Error decoding public key: {e}")
+                print(f"Raw public key: {self.election.public_key}")
+                print(f"Cleaned public key: {cleaned_key}")
+                raise
+            except Exception as e:
+                print(f"Error during encryption: {e}")
+                raise
+            
+        super().save(*args, **kwargs)
 

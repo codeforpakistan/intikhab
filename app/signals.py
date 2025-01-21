@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from app.models import Election
+from app.models import Election, Vote, Candidate
 from app.encryption import Encryption
 
 @receiver(post_save, sender=Election)
