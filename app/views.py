@@ -18,9 +18,9 @@ def profile(request):
 def vote(request, election_id, candidate_id):
     election = Election.objects.get(pk=election_id)
     candidate = Candidate.objects.get(pk=candidate_id)
-    ballot = uuid.uuid4().hex
     try:
-        vote = Vote(user=request.user, election=election, ballot=ballot)
+        vote = Vote(user=request.user, election=election)
+        vote._candidate = candidate
         vote.save()
         return redirect('election_detail', pk=election.pk)
     except:
