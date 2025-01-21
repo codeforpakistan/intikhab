@@ -1,10 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from encrypted_model_fields.fields import EncryptedCharField
-from app.encryption import Encryption
+from app.encryption import Encryption, Ciphertext
 import json
 
-# Create your models here.
 class Election(models.Model):
     name = models.CharField(max_length=100)
     start_date = models.DateTimeField()
@@ -14,9 +13,59 @@ class Election(models.Model):
     public_key = EncryptedCharField(max_length=500, default="", editable=False)
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
+    encrypted_tally = models.JSONField(null=True, blank=True)
+    decrypted_tally = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.name
+    
+    def get_encryption_instance(self):
+        # Convert the stored JSON public_key into the expected format
+        public_key_data = json.loads(self.public_key.replace("'", '"'))  # Parse JSON safely
+        public_key = f"{public_key_data['g']},{public_key_data['n']}"
+
+        # Parse private_key JSON string into a dictionary
+        private_key_data = json.loads(self.private_key.replace("'", '"'))
+        private_key = private_key_data['phi']  # Extract 'phi' as an integer
+
+        # Pass the parsed keys to the Encryption class
+        return Encryption(public_key=public_key, private_key=str(private_key))
+
+    
+    def homomorphic_addition(self):
+        encryption = self.get_encryption_instance()
+        votes = self.votes.all()  # Related name from the Vote model
+        encrypted_ballots = []
+        for vote in votes:
+            try:
+                ballot_list = json.loads(vote.ballot)
+                parsed_ballots = [Ciphertext.from_json(item) for item in ballot_list]
+                encrypted_ballots.append(parsed_ballots)
+            except json.JSONDecodeError as e:
+                print(f"Error decoding ballot for vote {vote.id}: {e}")
+                continue
+
+        if not encrypted_ballots:
+            return None  # No votes to add
+
+        # Perform homomorphic addition
+        total = encrypted_ballots[0]
+        for ballot in encrypted_ballots[1:]:
+            total = [encryption.add(t, b) for t, b in zip(total, ballot)]
+
+        self.encrypted_tally = [ct.to_json() for ct in total]
+
+        decrypted_total =  [self.decrypt(ct) for ct in total]
+
+        self.decrypted_tally = decrypted_total
+
+        self.save()
+
+        return decrypted_total
+    
+    def decrypt(self, encrypted_vote):
+        encryption = self.get_encryption_instance()
+        return encryption.decrypt(encrypted_vote)
 
 class Party(models.Model):
     class Meta:
@@ -46,7 +95,7 @@ class Vote(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
-    ballot = EncryptedCharField(max_length=5000, default="", editable=False)
+    ballot = models.JSONField(default=list, editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -67,7 +116,7 @@ class Vote(models.Model):
                 for vote in unencrypted_ballot:
                     encrypted_vote = encryption.encrypt(vote)
                     encrypted_ballot.append(encrypted_vote.to_json())
-                self.ballot = encrypted_ballot
+                self.ballot = json.dumps(encrypted_ballot)
                 print(f"Encrypted votes: {encrypted_ballot}")
                 delattr(self, '_candidate')
             except json.JSONDecodeError as e:
