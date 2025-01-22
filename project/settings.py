@@ -16,7 +16,15 @@ import environ
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, ''),
+    FIELD_ENCRYPTION_KEY=(str, ''),
+    ENCRYPTION_KEY_PATH=(str, ''),
+    ALLOWED_HOSTS=(str, ''),
+    LANGUAGE_CODE=(str, 'en-us'),
+    TIME_ZONE=(str, 'UTC'),
+    DATABASE_ENGINE=(str, 'django.db.backends.sqlite3'),
+    DATABASE_NAME=(str, 'db.sqlite3'),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,12 +38,12 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w=tfvfl2c!o30i0r%1-%g(z3*4y+2eebd9k77#lt6n-$!f0yk('
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 
 
 # Application definition
@@ -87,8 +95,8 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DATABASE_ENGINE'),
+        'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
 
@@ -111,13 +119,39 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'DEBUG',
+    },
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('TIME_ZONE')
 
 USE_I18N = True
 
@@ -137,5 +171,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-ENCRYPTION_KEY_PATH = 'secure_storage/keys/'  # Choose a secure location for keys
+# Encryption settings
+ENCRYPTION_KEY_PATH = env('ENCRYPTION_KEY_PATH')
 FIELD_ENCRYPTION_KEY = env('FIELD_ENCRYPTION_KEY')
