@@ -66,9 +66,8 @@ class Vote(models.Model):
                 encrypted_ballot = []
                 for vote in unencrypted_ballot:
                     encrypted_vote = encryption.encrypt(vote)
-                    encrypted_ballot.append(encrypted_vote.to_json())
+                    encrypted_ballot.append(encrypted_vote.ciphertext)
                 self.ballot = encrypted_ballot
-                print(f"Encrypted votes: {encrypted_ballot}")
                 delattr(self, '_candidate')
             except json.JSONDecodeError as e:
                 print(f"Error decoding public key: {e}")
