@@ -12,6 +12,10 @@ class Election(models.Model):
     description = models.TextField()
     private_key = EncryptedCharField(max_length=500, default="", editable=False)
     public_key = EncryptedCharField(max_length=500, default="", editable=False)
+    encrypted_positive_total = EncryptedCharField(max_length=5000, default="", editable=False)
+    encrypted_negative_total = EncryptedCharField(max_length=5000, default="", editable=False)
+    encrypted_zero_sum = EncryptedCharField(max_length=5000, default="", editable=False)
+    decrypted_total = EncryptedCharField(max_length=500, default="", editable=False)
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
