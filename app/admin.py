@@ -12,7 +12,7 @@ class PartyAdmin(admin.ModelAdmin):
     list_display = ('name', 'created')
 
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'election', 'ballot', 'created')
+    list_display = ('user', 'election', 'ballot', 'created', 'hashed')
     # readonly_fields = ('created', 'user', 'election', 'ballot')
 
 
