@@ -10,6 +10,10 @@
 
 {% if voted %}
 <p>You have already voted in this election.</p>
+<p><b>Vote details:</b></p>
+<p>Hash: {{ receipt.hashed }}</p>
+<p>Date: {{ receipt.created }}</p>
+
 {% else %}
 
 <div class="row">

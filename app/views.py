@@ -35,4 +35,4 @@ class ElectionDetailView(View):
     def get(self, request, pk):
         election = Election.objects.get(pk=pk)
         votes = Vote.objects.filter(election=election, user=request.user)
-        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count })
+        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count, 'receipt': votes.first()})

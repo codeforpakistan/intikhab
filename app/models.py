@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from encrypted_model_fields.fields import EncryptedCharField
 from app.encryption import Encryption
 import json
+from hashlib import sha256
 
 # Create your models here.
 class Election(models.Model):
@@ -51,6 +52,7 @@ class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
     ballot = EncryptedCharField(max_length=5000, default="", editable=False)
+    hashed = models.CharField(max_length=128, default="", editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -72,6 +74,13 @@ class Vote(models.Model):
                     encrypted_vote = encryption.encrypt(vote)
                     encrypted_ballot.append(encrypted_vote.ciphertext)
                 self.ballot = encrypted_ballot
+                print(f"Encrypted votes: {encrypted_ballot}")
+
+                # Hash the vote for receipt
+                data_to_hash = str(encrypted_ballot)
+                self.hashed = sha256(data_to_hash.encode()).hexdigest()
+                print(f"Hashed vote: {self.hashed}")
+
                 delattr(self, '_candidate')
             except json.JSONDecodeError as e:
                 print(f"Error decoding public key: {e}")
