@@ -52,6 +52,7 @@ class Vote(models.Model):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
     ballot = EncryptedCharField(max_length=5000, default="", editable=False)
+    negative_ballot = EncryptedCharField(max_length=5000, default="", editable=False)
     hashed = models.CharField(max_length=128, default="", editable=False)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -64,18 +65,35 @@ class Vote(models.Model):
                 candidates = self.election.candidates.order_by('id')
                 candidate_ids = [candidate.id for candidate in candidates]
                 unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
+                unencrypted_negative_ballot = [-1 if x == self._candidate.id else 0 for x in candidate_ids]
+                # add the unencrypted ballot to the decrypted_total
+                if self.election.decrypted_total == '':
+                    self.election.decrypted_total = json.dumps(unencrypted_ballot)
+                else:
+                    current_total = json.loads(self.election.decrypted_total)
+                    for i in range(len(unencrypted_ballot)):
+                        current_total[i] += unencrypted_ballot[i]
+                    self.election.decrypted_total = json.dumps(current_total)
+                
+                self.election.save()
                 cleaned_key = self.election.public_key.replace("'", '"')
                 public_key = json.loads(cleaned_key)
                 encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
                 
-                # Encrypt each vote
                 encrypted_ballot = []
                 for vote in unencrypted_ballot:
                     encrypted_vote = encryption.encrypt(vote)
                     encrypted_ballot.append(encrypted_vote.ciphertext)
                 self.ballot = encrypted_ballot
-                print(f"Encrypted votes: {encrypted_ballot}")
 
+                print(f"Encrypted ballot: {encrypted_ballot}")
+                print(f"Unencrypted negative ballot: {unencrypted_negative_ballot}")
+                encrypted_negative_ballot = []
+                for vote in unencrypted_negative_ballot:
+                    encrypted_vote = encryption.encrypt(vote)
+                    encrypted_negative_ballot.append(encrypted_vote.ciphertext)
+                self.negative_ballot = encrypted_negative_ballot
+                print(f"Encrypted negative ballot: {encrypted_negative_ballot}")
                 # Hash the vote for receipt
                 data_to_hash = str(encrypted_ballot)
                 self.hashed = sha256(data_to_hash.encode()).hexdigest()
