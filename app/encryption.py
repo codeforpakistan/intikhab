@@ -35,8 +35,7 @@ class Ciphertext:
         Create a Ciphertext object from JSON string.
         """
         data = json.loads(json_str)
-        return cls(int(data['ciphertext']), 
-                   int(data['randomness']) if data['randomness'] else None)
+        return cls(int(data['ciphertext']), int(data['randomness']) if data['randomness'] else None)
 
 class Encryption:
     def __init__(self, public_key: str = None, private_key: str = None):
