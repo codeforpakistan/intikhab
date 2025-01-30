@@ -30,49 +30,49 @@ def end_election(modeladmin, request, queryset):
                 messages.WARNING
             )
             continue
-
-        # Here you would:
-        # 1. Calculate encrypted_positive_total
-        # 2. Calculate encrypted_negative_total
-        # 3. Calculate encrypted_zero_sum
-        # 4. Decrypt the final total using private key
-        # 5. Set active to False
         try:
-            # Get all votes for this election
-            # votes = election.votes.all()
-            # if not votes.exists():
-            #     self.message_user(
-            #         request,
-            #         f"No votes found for election '{election.name}'",
-            #         messages.WARNING
-            #     )
-            #     continue
+            votes = election.votes.all()
+            if not votes.exists():
+                modeladmin.message_user(
+                    request,
+                    f"No votes found for election '{election.name}'",
+                    messages.WARNING
+                )
+                continue
 
-            # # Load the public key
-            # cleaned_key = election.public_key.replace("'", '"')
-            # public_key = json.loads(cleaned_key)
-            # encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+            cleaned_key = election.public_key.replace("'", '"')
+            public_key = json.loads(cleaned_key)
+            encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+            candidates_length = len(json.loads(votes[0].ballot))
+            encrypted_positive_total = [None] * candidates_length
+            encrypted_negative_total = [None] * candidates_length
+            encrypted_zero_sum = [None] * candidates_length
             
-            # # Calculate totals
-            # encrypted_positive_total = None
-            # encrypted_negative_total = None
-            # encrypted_zero_sum = None
+            for i in range(len(votes)):
+                ballot = json.loads(votes[i].ballot)
+                negative_ballot = json.loads(votes[i].negative_ballot)
+                for j in range(len(ballot)):
+                    json_str_positive = json.dumps({'ciphertext': ballot[j], 'randomness': None})
+                    json_str_negative = json.dumps({'ciphertext': negative_ballot[j], 'randomness': None})
+                    ct_temp_positive = Ciphertext.from_json(json_str_positive)
+                    ct_temp_negative = Ciphertext.from_json(json_str_negative)
+                    if i == 0:
+                        encrypted_positive_total[j] = ct_temp_positive    
+                        encrypted_negative_total[j] = ct_temp_negative
+                    else:
+                        encrypted_positive_total[j] = encryption.add(encrypted_positive_total[j], ct_temp_positive)
+                        encrypted_negative_total[j] = encryption.add(encrypted_negative_total[j], ct_temp_negative)
             
-            # # Process each vote's ballot
-            # for vote in votes:
-            #     ballot = json.loads(vote.ballot)
-            #     # Add your logic here to calculate encrypted totals
-            #     # This will depend on your specific encryption implementation
-            
-            # # Store the results
-            # election.encrypted_positive_total = encrypted_positive_total
-            # election.encrypted_negative_total = encrypted_negative_total
-            # election.encrypted_zero_sum = encrypted_zero_sum
-            
-            # # Decrypt final total using private key
-            # private_key = json.loads(election.private_key.replace("'", '"'))
-            # # Add your decryption logic here
-            # election.decrypted_total = 0  # Replace with actual decrypted total
+            for i in range(len(encrypted_positive_total)):
+                encrypted_zero_sum[i] = encryption.add(encrypted_positive_total[i], encrypted_negative_total[i])
+            # Convert Ciphertext objects to JSON-serializable format
+            serialized_positive_total = [ct.to_json() for ct in encrypted_positive_total]
+            serialized_negative_total = [ct.to_json() for ct in encrypted_negative_total]
+            serialized_zero_sum = [ct.to_json() for ct in encrypted_zero_sum]
+
+            election.encrypted_positive_total = json.dumps(serialized_positive_total)
+            election.encrypted_negative_total = json.dumps(serialized_negative_total)
+            election.encrypted_zero_sum = json.dumps(serialized_zero_sum)
             
             # End the election
             election.active = False
