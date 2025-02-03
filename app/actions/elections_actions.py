@@ -42,7 +42,10 @@ def end_election(modeladmin, request, queryset):
 
             cleaned_key = election.public_key.replace("'", '"')
             public_key = json.loads(cleaned_key)
-            encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+            #private key
+            cleaned_key = election.private_key.replace("'", '"')
+            private_key = json.loads(cleaned_key)
+            encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}", private_key=f"{private_key['phi']}")
             candidates_length = len(json.loads(votes[0].ballot))
             encrypted_positive_total = [None] * candidates_length
             encrypted_negative_total = [None] * candidates_length
@@ -73,6 +76,20 @@ def end_election(modeladmin, request, queryset):
             election.encrypted_positive_total = json.dumps(serialized_positive_total)
             election.encrypted_negative_total = json.dumps(serialized_negative_total)
             election.encrypted_zero_sum = json.dumps(serialized_zero_sum)
+
+            #Decryption
+            print("Decrypting total: \n")
+            decrypted_positive_total = []
+            for i in encrypted_positive_total:
+                decrypted_positive_total.append(encryption.decrypt(i))
+            print("Decrypted positive total: ", decrypted_positive_total)
+            election.decrypted_total = json.dumps(decrypted_positive_total)
+
+            decrypted_zero_sum = []
+            for i in encrypted_zero_sum:
+                decrypted_zero_sum.append(encryption.decrypt(i))
+            
+            print("Decrypted zero sum: ", decrypted_zero_sum)
             
             # End the election
             election.active = False
