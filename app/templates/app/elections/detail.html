@@ -34,7 +34,8 @@
     <div class="col-md-12">
       <h2>Election Results</h2>
       <p>Decrypted Total: {{ election.decrypted_total }}</p>
-      <p><button class="btn btn-primary" onclick="verifyResults()">Verify Results</button></p>
+      <button class="btn btn-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#results">Verify Results</button>
+      <div id="results"></div>
     </div>
   </div>
 {% endif %}

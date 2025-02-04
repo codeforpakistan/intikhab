@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from app.views import index, profile, ElectionListView, ElectionDetailView, vote
+from app.views import index, profile, ElectionListView, ElectionDetailView, VerifyResultsView, vote
 from django.contrib.auth.decorators import login_required
 from django.conf.urls.static import static
 from django.conf import settings
@@ -29,6 +29,7 @@ urlpatterns = [
     path('elections', login_required(ElectionListView.as_view()), name='election_list'),
     path('elections/<int:pk>', login_required(ElectionDetailView.as_view()), name='election_detail'),
     path('elections/<int:election_id>/vote/<int:candidate_id>', vote, name='vote'),
+    path('elections/<int:election_id>/verify-results', login_required(VerifyResultsView.as_view()), name='verify_results'),
     path('profile', profile, name='profile'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('admin/', admin.site.urls),
