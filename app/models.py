@@ -11,7 +11,7 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     description = models.TextField()
-    private_key = EncryptedCharField(max_length=500, default="", editable=True)
+    private_key = EncryptedCharField(max_length=500, default="", editable=False)
     public_key = EncryptedCharField(max_length=500, default="", editable=False)
     encrypted_positive_total = EncryptedCharField(max_length=5000, default="", editable=False)
     encrypted_negative_total = EncryptedCharField(max_length=5000, default="", editable=False)
