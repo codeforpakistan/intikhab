@@ -33,10 +33,8 @@
   <div class="row">
     <div class="col-md-12">
       <h2>Election Results</h2>
-      <p>Positive Total: {{ election.encrypted_positive_total }}</p>
-      <p>Negative Total: {{ election.encrypted_negative_total }}</p>
-      <p>Zero Sum: {{ election.encrypted_zero_sum }}</p>
-      <p>Decrypted Total: {{ decrypted_total }}</p>
+      <p>Decrypted Total: {{ election.decrypted_total }}</p>
+      <p><button class="btn btn-primary" onclick="verifyResults()">Verify Results</button></p>
     </div>
   </div>
 {% endif %}
