@@ -128,3 +128,19 @@ class Encryption:
         :return: Hexadecimal hash string
         """
         return hashlib.sha256(data.encode()).hexdigest()
+
+    def extract_randomness_from_zero_vector(self, ciphertext):
+        """
+        Return the randomness associated with a zero vector.
+
+        :param data: Ciphertext object
+        :return: Randomness integer
+        """
+        # Step 1: Compute M = N^(-1) mod phi(N)
+        public_key_n = self.paillier.plaintext_modulo
+        phi_n = self.paillier.keys["private_key"]["phi"]
+        m = mod_inverse(public_key_n, phi_n)
+        
+        # Step 2: Compute r = c^M mod N
+        r = pow(ciphertext.ciphertext, m, public_key_n)
+        return r
