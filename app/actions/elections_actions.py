@@ -40,6 +40,7 @@ def end_election(modeladmin, request, queryset):
                 )
                 continue
 
+
             cleaned_key_pb = election.public_key.replace("'", '"')
             public_key = json.loads(cleaned_key_pb)
 

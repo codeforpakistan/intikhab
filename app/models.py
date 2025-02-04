@@ -65,7 +65,6 @@ class Vote(models.Model):
                 candidates = self.election.candidates.order_by('id')
                 candidate_ids = [candidate.id for candidate in candidates]
                 unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
-                
                 cleaned_key = self.election.public_key.replace("'", '"')
                 public_key = json.loads(cleaned_key)
                 encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
