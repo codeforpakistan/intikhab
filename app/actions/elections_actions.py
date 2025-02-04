@@ -109,7 +109,7 @@ def end_election(modeladmin, request, queryset):
                 request,
                 f"Error ending election '{election.name}': {str(e)}",
                 messages.ERROR
-            )   
+            )
 
 # Add a description for the admin interface
 end_election.short_description = "End selected elections"

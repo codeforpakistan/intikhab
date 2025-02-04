@@ -37,16 +37,40 @@ class ElectionDetailView(View):
     def get(self, request, pk):
         election = Election.objects.get(pk=pk)
         votes = Vote.objects.filter(election=election, user=request.user)
-        # TODO: get the decrypted total and show in the detail.html
-        decrypted_total = []
-        cleaned_public_key = election.public_key.replace("'", '"')
-        cleaned_private_key = election.private_key.replace("'", '"')
-        public_key = json.loads(cleaned_public_key)
-        private_key = json.loads(cleaned_private_key)
-        encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}", private_key=f"{private_key['phi']}")
-        cleaned_encrypted_positive_total = election.encrypted_positive_total.replace("'", '"')
-        encrypted_positive_total = json.loads(cleaned_encrypted_positive_total)
-        for i in encrypted_positive_total:
-            tally_ciphertext = Ciphertext.from_json(i)
-            decrypted_total.append(encryption.decrypt(tally_ciphertext))
-        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count, 'receipt': votes.first(), 'decrypted_total': decrypted_total})
+        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count, 'receipt': votes.first()})
+
+class VerifyResultsView(View):
+    def get(self, request, election_id):
+        election = Election.objects.get(pk=election_id)
+        cleaned_key = election.public_key.replace("'", '"')
+        public_key = json.loads(cleaned_key)
+        encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+        
+        # convert the decrypted total to negative vector
+        decrypted_total = json.loads(election.decrypted_total)
+        decrypted_negative_total = [-x for x in decrypted_total]
+        encrypted_negative_total = []
+        for i in decrypted_negative_total:
+            encrypted_negative_total.append(encryption.encrypt(plaintext=i, rand=1))
+        
+        encrypted_positive_total = json.loads(election.encrypted_positive_total)
+        encrypted_zero_sum = []
+        for i in range(len(encrypted_positive_total)):
+            temp_ept = Ciphertext.from_json(encrypted_positive_total[i])
+            encrypted_zero_sum.append(encryption.add(temp_ept, encrypted_negative_total[i]))
+        
+        zero_randomness = json.loads(election.zero_randomness)
+        recalculated_zero_sum = []
+        for i in range(len(zero_randomness)):
+            recalculated_zero_sum.append(encryption.encrypt(plaintext=0, rand=zero_randomness[i]))
+        
+        print(encrypted_zero_sum)
+        print(recalculated_zero_sum)
+        print(encrypted_zero_sum == recalculated_zero_sum)
+        for i in range(len(encrypted_zero_sum)):
+            if encrypted_zero_sum[i].ciphertext != recalculated_zero_sum[i].ciphertext:
+                verified = False
+                break
+        else:
+            verified = True
+        return render(request, 'app/elections/verify_results.html', {'election': election, 'verified': verified})

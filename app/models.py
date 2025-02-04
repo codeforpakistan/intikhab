@@ -23,7 +23,7 @@ class Election(models.Model):
 
     def __str__(self):
         return self.name
-
+    
 class Party(models.Model):
     class Meta:
         verbose_name = "Party"
