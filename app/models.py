@@ -11,12 +11,11 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     description = models.TextField()
-    private_key = EncryptedCharField(max_length=500, default="", editable=False)
+    private_key = EncryptedCharField(max_length=500, default="", editable=True)
     public_key = EncryptedCharField(max_length=500, default="", editable=False)
     encrypted_positive_total = EncryptedCharField(max_length=5000, default="", editable=False)
     encrypted_negative_total = EncryptedCharField(max_length=5000, default="", editable=False)
     encrypted_zero_sum = EncryptedCharField(max_length=5000, default="", editable=False)
-    decrypted_total = EncryptedCharField(max_length=500, default="", editable=False)
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -66,16 +65,7 @@ class Vote(models.Model):
                 candidate_ids = [candidate.id for candidate in candidates]
                 unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
                 unencrypted_negative_ballot = [-1 if x == self._candidate.id else 0 for x in candidate_ids]
-                # add the unencrypted ballot to the decrypted_total
-                if self.election.decrypted_total == '':
-                    self.election.decrypted_total = json.dumps(unencrypted_ballot)
-                else:
-                    current_total = json.loads(self.election.decrypted_total)
-                    for i in range(len(unencrypted_ballot)):
-                        current_total[i] += unencrypted_ballot[i]
-                    self.election.decrypted_total = json.dumps(current_total)
-                
-                self.election.save()
+
                 cleaned_key = self.election.public_key.replace("'", '"')
                 public_key = json.loads(cleaned_key)
                 encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
