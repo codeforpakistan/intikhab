@@ -6,26 +6,38 @@
   <p class="lead">{{ election.description }}</p>
 </header>
 
-<p>{{ election.votes.count }} votes</p>
+{% if election.active %}
+  <p>{{ election.votes.count }} votes</p>
+{% endif %}
 
 {% if voted %}
-<p>You have already voted in this election.</p>
-<p><b>Vote details:</b></p>
-<p>Hash: {{ receipt.hashed }}</p>
-<p>Date: {{ receipt.created }}</p>
+  <p>You have already voted in this election.</p>
+  <p><b>Vote details:</b></p>
+  <p>Hash: {{ receipt.hashed }}</p>
+  <p>Date: {{ receipt.created }}</p>
 
 {% else %}
+  <div class="row">
+  {% for candidate in election.candidates.all %}
+    <div class="col-md-4">
+      <div class="card card-body">
+        <h2>{{ candidate.user.get_username }}</h2>
+        <p class="mb-0"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
 
-<div class="row">
-{% for candidate in election.candidates.all %}
-<div class="col-md-4">
-<div class="card card-body">
-  <h2>{{ candidate.user.get_username }}</h2>
-  <p class="mb-0"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
-</div>
-</div>
-{% endfor %}
-</div>
-
+{% endif %}
+{% if not election.active %}
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Election Results</h2>
+      <p>Positive Total: {{ election.encrypted_positive_total }}</p>
+      <p>Negative Total: {{ election.encrypted_negative_total }}</p>
+      <p>Zero Sum: {{ election.encrypted_zero_sum }}</p>
+      <p>Decrypted Total: {{ decrypted_total }}</p>
+    </div>
+  </div>
 {% endif %}
 {% endblock %}

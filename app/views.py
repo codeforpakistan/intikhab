@@ -3,6 +3,8 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from app.models import Election, Candidate, Vote
+from app.encryption import Encryption, Ciphertext
+import json
 
 # Create your views here.
 def index(request):
@@ -35,4 +37,16 @@ class ElectionDetailView(View):
     def get(self, request, pk):
         election = Election.objects.get(pk=pk)
         votes = Vote.objects.filter(election=election, user=request.user)
-        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count, 'receipt': votes.first()})
+        # TODO: get the decrypted total and show in the detail.html
+        decrypted_total = []
+        cleaned_public_key = election.public_key.replace("'", '"')
+        cleaned_private_key = election.private_key.replace("'", '"')
+        public_key = json.loads(cleaned_public_key)
+        private_key = json.loads(cleaned_private_key)
+        encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}", private_key=f"{private_key['phi']}")
+        cleaned_encrypted_positive_total = election.encrypted_positive_total.replace("'", '"')
+        encrypted_positive_total = json.loads(cleaned_encrypted_positive_total)
+        for i in encrypted_positive_total:
+            tally_ciphertext = Ciphertext.from_json(i)
+            decrypted_total.append(encryption.decrypt(tally_ciphertext))
+        return render(request, 'app/elections/detail.html', {'election': election, 'voted': votes.count, 'receipt': votes.first(), 'decrypted_total': decrypted_total})
