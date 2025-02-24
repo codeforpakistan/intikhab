@@ -61,10 +61,13 @@ python manage.py runserver
 6. Access the application at http://127.0.0.1:8000/ or http://localhost:8000/
 
 ## Project Structure
+```
 electronic-voting-machine/
 ├── app/
+│ ├── actions/
 │ ├── management/
 │ ├── migrations/
+│ ├── signals/
 │ ├── static/
 │ ├── templates/
 │ ├── admin.py # Admin configuration
@@ -82,7 +85,7 @@ electronic-voting-machine/
 ├── manage.py
 ├── ReadMe.md
 └── requirements.txt
-
+```
 ## How It Works
 
 This electronic voting system uses Paillier Homomorphic Encryption to ensure:
