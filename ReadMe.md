@@ -64,8 +64,10 @@ python manage.py runserver
 ```
 electronic-voting-machine/
 ├── app/
+│ ├── actions/
 │ ├── management/
 │ ├── migrations/
+│ ├── signals/
 │ ├── static/
 │ ├── templates/
 │ ├── admin.py # Admin configuration
