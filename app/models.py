@@ -4,6 +4,7 @@ from encrypted_model_fields.fields import EncryptedCharField
 from app.encryption import Encryption
 import json
 from hashlib import sha256
+from escpos.printer import Usb #the library
 
 # Create your models here.
 class Election(models.Model):
@@ -62,24 +63,28 @@ class Vote(models.Model):
     def save(self, *args, **kwargs):
         if not self.ballot and hasattr(self, '_candidate'):
             try:
-                candidates = self.election.candidates.order_by('id')
-                candidate_ids = [candidate.id for candidate in candidates]
-                unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
-                cleaned_key = self.election.public_key.replace("'", '"')
-                public_key = json.loads(cleaned_key)
-                encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
-                
-                encrypted_ballot = []
-                for vote in unencrypted_ballot:
-                    encrypted_vote = encryption.encrypt(vote)
-                    encrypted_ballot.append(encrypted_vote.ciphertext)
-                self.ballot = encrypted_ballot
-                print(f"Encrypted ballot: {encrypted_ballot}")
-                # Hash the vote for receipt
-                data_to_hash = str(encrypted_ballot)
-                self.hashed = sha256(data_to_hash.encode()).hexdigest()
-                print(f"Hashed vote: {self.hashed}")
-                delattr(self, '_candidate')
+                    p = Usb(0x0483,0x5743) # the printer hardware
+                    candidates = self.election.candidates.order_by('id')
+                    candidate_ids = [candidate.id for candidate in candidates]
+                    unencrypted_ballot = [1 if x == self._candidate.id else 0 for x in candidate_ids]
+                    cleaned_key = self.election.public_key.replace("'", '"')
+                    public_key = json.loads(cleaned_key)
+                    encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+                    
+                    encrypted_ballot = []
+                    for vote in unencrypted_ballot:
+                        encrypted_vote = encryption.encrypt(vote)
+                        encrypted_ballot.append(encrypted_vote.ciphertext)
+                    self.ballot = encrypted_ballot
+                    print(f"Encrypted ballot: {encrypted_ballot}")
+                    # Hash the vote for receipt
+                    data_to_hash = str(encrypted_ballot)
+                    self.hashed = sha256(data_to_hash.encode()).hexdigest()
+                    p.qr(self.hashed)
+                    p.text(self.hashed)
+                    p.cut()
+                    print(f"Hashed vote: {self.hashed}")
+                    delattr(self, '_candidate')
             except json.JSONDecodeError as e:
                 print(f"Error decoding public key: {e}")
                 print(f"Raw public key: {self.election.public_key}")
