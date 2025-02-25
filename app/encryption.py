@@ -4,29 +4,26 @@ import hashlib
 import json
 
 class Ciphertext:
-    def __init__(self, ciphertext: int, randomness: int = None):
+    def __init__(self, ciphertext: int):
         """
         Initialize a Ciphertext object.
         
         :param ciphertext: The encrypted value
-        :param randomness: The randomness used in encryption (optional)
         """
         self.ciphertext = ciphertext
-        self.randomness = randomness
 
     def __repr__(self):
         """
         Provide a string representation of the CipherData object for debugging.
         """
-        return f"CipherData(ciphertext='{self.ciphertext}', randomness='{self.randomness}')"
+        return f"CipherData(ciphertext='{self.ciphertext}')"
 
     def to_json(self):
         """
         Convert the ciphertext object to JSON format.
         """
         return json.dumps({
-            'ciphertext': str(self.ciphertext),
-            'randomness': str(self.randomness) if self.randomness else None
+            'ciphertext': str(self.ciphertext)
         })
 
     @classmethod
@@ -35,7 +32,7 @@ class Ciphertext:
         Create a Ciphertext object from JSON string.
         """
         data = json.loads(json_str)
-        return cls(int(data['ciphertext']), int(data['randomness']) if data['randomness'] else None)
+        return cls(int(data['ciphertext']))
 
 class Encryption:
     def __init__(self, public_key: str = None, private_key: str = None):
@@ -46,7 +43,7 @@ class Encryption:
         :param private_key: The private key phi value
         """
         if public_key is None and private_key is None:
-            self.paillier = Paillier()
+            self.paillier = Paillier(key_size=2048)
         elif public_key is not None and private_key is None:
             public_key_g, public_key_n = map(int, public_key.split(','))
             keys = {"public_key": {"g": public_key_g, "n": public_key_n}}
@@ -77,7 +74,7 @@ class Encryption:
         if rand is None:
             rand = self.generate_random_key()
         ct = self.paillier.encrypt(plaintext, rand)
-        return Ciphertext(ct, rand)
+        return Ciphertext(ct)
 
     def add(self, ct1: Ciphertext, ct2: Ciphertext) -> Ciphertext:
         """
@@ -88,10 +85,7 @@ class Encryption:
         :return: Ciphertext object containing encrypted sum
         """
         sum_ct = self.paillier.add(ct1.ciphertext, ct2.ciphertext)
-        combined_randomness = None
-        if ct1.randomness and ct2.randomness:
-            combined_randomness = (ct1.randomness * ct2.randomness) % self.paillier.ciphertext_modulo
-        return Ciphertext(sum_ct, combined_randomness)
+        return Ciphertext(sum_ct)
     
     def decrypt(self, ct: Ciphertext) -> int:
         """
