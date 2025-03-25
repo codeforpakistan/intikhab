@@ -7,17 +7,20 @@
 </header>
 
 {% if election.active %}
-  <p>{{ election.votes.count }} votes</p>
+<p>{{ election.votes.count }} votes</p>
 {% endif %}
 
 {% if voted %}
-  <p>You have already voted in this election.</p>
-  <p><b>Vote details:</b></p>
-  <p>Hash: {{ receipt.hashed }}</p>
-  <p>Date: {{ receipt.created }}</p>
+<p>You have already voted in this election.</p>
+<p><b>Vote details:</b></p>
+<p>Hash: {{ receipt.hashed }}</p>
+<p>Date: {{ receipt.created }}</p>
 
 {% else %}
-  <div class="row">
+
+{% if election.active %}
+
+<div class="row">
   {% for candidate in election.candidates.all %}
     <div class="col-md-4">
       <div class="card card-body">
@@ -26,18 +29,22 @@
         <p class="mb-0 text-center"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
       </div>
     </div>
+  </div>
   {% endfor %}
 </div>
 
 {% endif %}
+{% endif %}
+
 {% if not election.active %}
-  <div class="row">
-    <div class="col-md-12">
-      <h2>Election Results</h2>
-      <p>Decrypted Total: {{ election.decrypted_total }}</p>
-      <button class="btn btn-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#results">Verify Results</button>
-      <div id="results"></div>
-    </div>
+<div class="row">
+  <div class="col-md-12">
+    <h2>Election Results</h2>
+    <p>Decrypted Total: {{ election.decrypted_total }}</p>
+    <button class="btn btn-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#results">Verify
+      Results</button>
+    <div id="results"></div>
   </div>
+</div>
 {% endif %}
 {% endblock %}

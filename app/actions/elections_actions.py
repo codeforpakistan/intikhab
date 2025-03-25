@@ -59,7 +59,7 @@ def end_election(modeladmin, request, queryset):
             for i in range(len(votes)):
                 ballot = json.loads(votes[i].ballot)
                 for j in range(len(ballot)):
-                    json_str_positive = json.dumps({'ciphertext': ballot[j], 'randomness': None})
+                    json_str_positive = json.dumps({'ciphertext': ballot[j]})
                     ct_temp_positive = Ciphertext.from_json(json_str_positive)
                     if i == 0:
                         encrypted_positive_total[j] = ct_temp_positive    
