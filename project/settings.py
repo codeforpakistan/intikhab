@@ -176,3 +176,7 @@ LOGOUT_REDIRECT_URL = '/'
 # Encryption settings
 ENCRYPTION_KEY_PATH = env('ENCRYPTION_KEY_PATH')
 FIELD_ENCRYPTION_KEY = env('FIELD_ENCRYPTION_KEY')
+
+# Media files (Uploaded files)
+MEDIA_URL = '/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '')
