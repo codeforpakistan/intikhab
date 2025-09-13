@@ -4,21 +4,59 @@
 <header>
   <h1>{{ election.name }}</h1>
   <p class="lead">{{ election.description }}</p>
+  <small class="text-muted">
+    From {{ election.start_date|date:"M d, Y H:i" }} to {{ election.end_date|date:"M d, Y H:i" }}
+  </small>
 </header>
 
-<p>{{ election.votes.count }} votes</p>
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Election Status</h5>
+        <p class="card-text">
+          {% if election.is_voting_open %}
+            <span class="badge bg-success">Voting Open</span>
+          {% elif election.active %}
+            <span class="badge bg-warning">Election Active but Voting Closed</span>
+          {% else %}
+            <span class="badge bg-secondary">Election Inactive</span>
+          {% endif %}
+        </p>
+        <p class="card-text">
+          <strong>Total Votes:</strong> {{ election.votes.count }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% if voted %}
-<p>You have already voted in this election.</p>
+<div class="alert alert-info">
+  <strong>Thank you!</strong> You have already voted in this election.
+</div>
+{% elif not election.is_voting_open %}
+<div class="alert alert-warning">
+  <strong>Voting Closed:</strong> Voting is not currently open for this election.
+</div>
 {% else %}
 
+<h3>Candidates</h3>
 <div class="row">
 {% for candidate in election.candidates.all %}
-<div class="col-md-4">
-<div class="card card-body">
-  <h2>{{ candidate.user.get_username }}</h2>
-  <p class="mb-0"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
-</div>
+<div class="col-md-4 mb-3">
+  <div class="card">
+    <div class="card-body text-center">
+      {% if candidate.symbol %}
+        <img src="{{ candidate.symbol.url }}" alt="{{ candidate.user.get_full_name }}" class="img-fluid mb-2" style="max-height: 100px;">
+      {% endif %}
+      <h5 class="card-title">{{ candidate.user.get_full_name }}</h5>
+      {% if candidate.party %}
+        <p class="card-text">{{ candidate.party.name }}</p>
+      {% endif %}
+      <a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a>
+    </div>
+  </div>
 </div>
 {% endfor %}
 </div>

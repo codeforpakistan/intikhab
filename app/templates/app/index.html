@@ -1,5 +1,149 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<h1>Welcome to Intikhab</h1>
+<div class="bg-success text-white py-5 mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8 col-md-10 mx-auto text-center">
+        <h1 class="display-4 fw-bold mb-4">Welcome to Intikhab</h1>
+        <p class="lead mb-4">A secure electronic voting platform that ensures transparency and privacy in democratic elections.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+          {% if request.user.is_authenticated %}
+            <a href="{% url 'election_list' %}" class="btn btn-light btn-lg">
+              <i class="bi bi-check-square me-2"></i>View Elections
+            </a>
+            <a href="{% url 'profile' %}" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-person me-2"></i>My Profile
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-light btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login to Vote
+            </a>
+            <a href="#features" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-info-circle me-2"></i>Learn More
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if elections %}
+<div class="mb-5">
+  <div class="text-center mb-4">
+    <h2 class="h3 fw-bold">
+      <i class="bi bi-card-checklist text-success me-2"></i>Active Elections
+    </h2>
+    <p class="text-muted">Vote now in these ongoing elections</p>
+  </div>
+  
+  <div class="row g-4">
+    {% for election in elections %}
+    {% if election.is_voting_open %}
+    <div class="col-lg-6">
+      <div class="card border-0 h-100">
+        <div class="card-header bg-success text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">{{ election.name }}</h5>
+            <span class="badge bg-light text-success">
+              <i class="bi bi-circle-fill me-1"></i>Live
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-text">{{ election.description|truncatewords:20 }}</p>
+          <div class="bg-light p-3 rounded mb-3">
+            <small class="text-muted d-block">
+              <i class="bi bi-clock me-1"></i>
+              Voting ends: {{ election.end_date|date:"M d, Y H:i" }}
+            </small>
+            <small class="text-muted">
+              <i class="bi bi-people me-1"></i>
+              {{ election.votes.count }} vote{{ election.votes.count|pluralize }} cast
+            </small>
+          </div>
+          <div class="d-grid">
+            {% if request.user.is_authenticated %}
+              <a href="{% url 'election_detail' election.id %}" class="btn btn-success">
+                <i class="bi bi-check-square me-2"></i>Vote Now
+              </a>
+            {% else %}
+              <a href="{% url 'login' %}" class="btn btn-success">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Vote
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if request.user.is_authenticated %}
+  <div class="text-center mt-4">
+    <a href="{% url 'election_list' %}" class="btn btn-outline-success btn-lg">
+      <i class="bi bi-list me-2"></i>View All Elections
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <div class="mb-4">
+    <i class="bi bi-card-checklist text-muted" style="font-size: 4rem;"></i>
+  </div>
+  <h3 class="fw-bold mb-3">No Elections Available</h3>
+  <p class="lead text-muted mb-4">There are currently no elections scheduled. Please check back later.</p>
+  {% if request.user.is_authenticated %}
+    <a href="{% url 'profile' %}" class="btn btn-outline-primary">
+      <i class="bi bi-person me-2"></i>View Your Profile
+    </a>
+  {% endif %}
+</div>
+{% endif %}
+
+<section id="features" class="py-5">
+  <div class="text-center mb-5">
+    <h2 class="display-5 fw-bold">Why Choose Intikhab?</h2>
+    <p class="lead text-muted">Built with modern technology for secure and transparent elections</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 text-center border-0">
+        <div class="card-body p-4">
+          <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+            <i class="bi bi-shield-check fs-4"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Secure & Private</h4>
+          <p class="text-muted">Advanced cryptographic methods ensure your vote remains private and secure using homomorphic encryption.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 text-center border-0">
+        <div class="card-body p-4">
+          <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+            <i class="bi bi-eye fs-4"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Transparent & Verifiable</h4>
+          <p class="text-muted">Election results are publicly verifiable while maintaining complete voter privacy and anonymity.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 text-center border-0">
+        <div class="card-body p-4">
+          <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+            <i class="bi bi-check-circle fs-4"></i>
+          </div>
+          <h4 class="fw-bold mb-3">Easy & Accessible</h4>
+          <p class="text-muted">User-friendly interface makes voting simple and accessible to everyone, anywhere, anytime.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}

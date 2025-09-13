@@ -1,13 +1,45 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<h1>{{ request.user.get_username }}</h1>
+<div class="row">
+  <div class="col-md-8">
+    <h1>Profile: {{ request.user.get_full_name|default:request.user.username }}</h1>
+    
+    <div class="card mb-4 border-0">
+      <div class="card-header">
+        <h5>User Information</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>Username:</strong> {{ request.user.username }}</p>
+        <p><strong>Email:</strong> {{ request.user.email|default:"Not provided" }}</p>
+        <p><strong>Date Joined:</strong> {{ request.user.date_joined|date:"M d, Y" }}</p>
+      </div>
+    </div>
 
-<p class="lead">Elections you have voted in:</p>
-<ul>
-{% for vote in votes %}
-<li><a href="{% url 'election_detail' vote.election.id %}">{{ vote.election.name }}</a></li>
-{% endfor %}
-</ul>
-
+    <div class="card border-0">
+      <div class="card-header">
+        <h5>Voting History</h5>
+      </div>
+      <div class="card-body">
+        {% if votes %}
+          <p class="lead">You have voted in {{ votes.count }} election{{ votes.count|pluralize }}:</p>
+          <div class="list-group">
+            {% for vote in votes %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">{{ vote.election.name }}</h6>
+                <small>Voted on {{ vote.created|date:"M d, Y H:i" }}</small>
+              </div>
+              <a href="{% url 'election_detail' vote.election.id %}" class="btn btn-sm btn-outline-primary">View Election</a>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted">You haven't voted in any elections yet.</p>
+          <a href="{% url 'election_list' %}" class="btn btn-primary">Browse Elections</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
