@@ -40,22 +40,54 @@ class Election(models.Model):
         """Check if voting is currently open for this election"""
         from django.utils import timezone
         now = timezone.now()
+        # Elections are only open when active = True and today is between start and end
         return self.active and self.start_date <= now <= self.end_date
+    
+    def is_editable(self):
+        """Check if this election can be edited"""
+        from django.utils import timezone
+        now = timezone.now()
+        # Election is NOT editable if they are active and today is between start and end
+        if self.active and self.start_date <= now <= self.end_date:
+            return False
+        return True
+    
+    def can_show_results(self):
+        """Check if results can be displayed for this election"""
+        from django.utils import timezone
+        now = timezone.now()
+        # Election results are only available when election is closed after voting
+        return not self.active and now > self.end_date
     
     def get_status(self):
         """Get the current status of the election"""
-        if not self.active:
-            return "Inactive"
-        
         from django.utils import timezone
         now = timezone.now()
         
-        if now < self.start_date:
-            return "Scheduled"
-        elif now > self.end_date:
-            return "Closed"
+        if not self.active:
+            if now > self.end_date:
+                return "closed"  # Election is closed and voting period has ended
+            else:
+                return "inactive"  # Election is inactive (not yet activated)
         else:
-            return "Active"
+            if now < self.start_date:
+                return "scheduled"  # Election is active but voting hasn't started
+            elif now > self.end_date:
+                return "expired"  # Election is active but voting period has ended (needs to be closed)
+            else:
+                return "open"  # Election is active and voting is open
+    
+    def get_status_display(self):
+        """Get display-friendly status text with appropriate styling class"""
+        status = self.get_status()
+        status_map = {
+            'open': {'text': 'Voting Open', 'class': 'bg-success'},
+            'scheduled': {'text': 'Scheduled', 'class': 'bg-warning'},
+            'inactive': {'text': 'Inactive', 'class': 'bg-secondary'},
+            'expired': {'text': 'Voting Ended', 'class': 'bg-danger'},
+            'closed': {'text': 'Closed', 'class': 'bg-secondary'}
+        }
+        return status_map.get(status, {'text': 'Unknown', 'class': 'bg-secondary'})
     
     def get_total_votes(self):
         """Get the total number of votes cast in this election"""

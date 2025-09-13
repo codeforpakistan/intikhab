@@ -1,5 +1,15 @@
 """
-URL configuration for project project.
+URL configuration# Import views from the new organized structure
+from app.views import (
+    # Base views
+    index, profile, terms, privacy, accessibility, contact,
+    # Election views
+    ElectionListView, ElectionDetailView, ElectionCreateView, ElectionUpdateView,
+    # Candidate views
+    CandidateCreateView, CandidateUpdateView, CandidateDeleteView, CandidateDetailView,
+    # Vote views
+    VoteView, CloseElectionView, VerifyResultsView
+)t project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -23,11 +33,11 @@ from django.conf import settings
 # Import views from the new organized structure
 from app.views import (
     # Base views
-    index, profile,
+    index, profile, terms, privacy, accessibility, contact, faq,
     # Election views
     ElectionListView, ElectionDetailView, ElectionCreateView, ElectionUpdateView,
     # Candidate views
-    CandidateCreateView, CandidateUpdateView, CandidateDeleteView,
+    CandidateCreateView, CandidateUpdateView, CandidateDeleteView, CandidateDetailView,
     # Vote views
     VoteView, CloseElectionView, VerifyResultsView
 )
@@ -40,6 +50,13 @@ urlpatterns = [
     path('', index, name='index'),
     path('profile', profile, name='profile'),
     
+    # Legal pages
+    path('terms', terms, name='terms'),
+    path('privacy', privacy, name='privacy'),
+    path('accessibility', accessibility, name='accessibility'),
+    path('contact', contact, name='contact'),
+    path('faq', faq, name='faq'),
+    
     # Election management
     path('elections', login_required(ElectionListView.as_view()), name='election_list'),
     path('elections/create', ElectionCreateView.as_view(), name='create_election'),
@@ -48,12 +65,13 @@ urlpatterns = [
     path('elections/<int:pk>/close', CloseElectionView.as_view(), name='close_election'),
     
     # Candidate management
-    path('elections/<int:election_pk>/candidates/add', CandidateCreateView.as_view(), name='add_candidate'),
-    path('candidates/<int:pk>/edit', CandidateUpdateView.as_view(), name='edit_candidate'),
-    path('candidates/<int:pk>/delete', CandidateDeleteView.as_view(), name='delete_candidate'),
+    path('elections/<int:election_pk>/candidates/create', CandidateCreateView.as_view(), name='add_candidate'),
+    path('elections/<int:election_pk>/candidates/<int:pk>', login_required(CandidateDetailView.as_view()), name='candidate_detail'),
+    path('elections/<int:election_pk>/candidates/<int:pk>/edit', CandidateUpdateView.as_view(), name='edit_candidate'),
+    path('elections/<int:election_pk>/candidates/<int:pk>/delete', CandidateDeleteView.as_view(), name='delete_candidate'),
     
     # Voting and results
-    path('elections/<int:election_id>/vote/<int:candidate_id>', VoteView.as_view(), name='vote'),
+    path('elections/<int:election_pk>/candidates/<int:pk>/vote', VoteView.as_view(), name='vote'),
     path('elections/<int:election_id>/verify-results', login_required(VerifyResultsView.as_view()), name='verify_results'),
     
     # Authentication

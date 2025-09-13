@@ -3,26 +3,23 @@
 
 {% block content %}
 <!-- Page Header - Full Width -->
-<header class="bg-success text-white py-4 mb-5">
+<header class="bg-success text-white py-4 mb-0">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center">
-      <h1 class="mb-0">Edit Election</h1>
-      <a href="{% url 'election_detail' pk=object.pk %}" class="btn btn-light">
-        <i class="bi bi-arrow-left me-2"></i>Back to Election
-      </a>
-    </div>
+    <h1 class="mb-0">Edit Election</h1>
   </div>
 </header>
 
+{% include 'app/partials/breadcrumbs.html' %}
+
 <!-- Content Section -->
-<div class="container pb-5">
+<article class="container py-5">
   <div class="row justify-content-center">
     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
     {% csrf_token %}
     
     <!-- Election Details Card -->
     <div class="card border-0 mb-4">
-        <div class="card-header bg-secondary text-white">
+        <div class="card-header border-0">
         <h5 class="card-title mb-0">
             <i class="bi bi-pencil-square me-2"></i>Election Details
         </h5>
@@ -78,14 +75,21 @@
             </div>
         </div>
         
-        <!-- Election Status Info -->
-        <div class="alert {% if object.active %}alert-success{% else %}alert-secondary{% endif %}" role="alert">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Status:</strong> 
-            {% if object.active %}
-                This election is currently <strong>active</strong>
-            {% else %}
-                This election is <strong>closed</strong>
+        <!-- Active Election Toggle -->
+        <div class="mb-3">
+            <div class="form-check">
+                {{ form.active }}
+                <label class="form-check-label" for="{{ form.active.id_for_label }}">
+                    {{ form.active.label }}
+                </label>
+                {% if form.active.help_text %}
+                    <div class="form-text">{{ form.active.help_text }}</div>
+                {% endif %}
+            </div>
+            {% if form.active.errors %}
+                <div class="invalid-feedback d-block">
+                {{ form.active.errors.0 }}
+                </div>
             {% endif %}
         </div>
         
@@ -95,17 +99,17 @@
             </div>
         {% endif %}
         </div>
-    </div>
-
-    <!-- Submit Button -->
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a href="{% url 'election_detail' pk=object.pk %}" class="btn btn-secondary me-md-2">Cancel</a>
-        <button type="submit" class="btn btn-primary">
-        <i class="bi bi-check-circle me-2"></i>Update Election
-        </button>
+        <div class="card-footer border-0">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="{% url 'election_detail' pk=object.pk %}" class="btn btn-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-success">
+                Update Election
+                </button>
+            </div>
+        </div>
     </div>
     </form>
   </div>
-</div>
+</article>
 
 {% endblock %}

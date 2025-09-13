@@ -1,0 +1,29 @@
+{% load static %}
+{% comment %}
+Reusable candidate avatar partial
+Usage: {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=80 %}
+
+Parameters:
+- candidate: The candidate object (required)
+- size: Avatar size in pixels (default: 80)
+- css_classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% if candidate.user.profile and candidate.user.profile.avatar %}
+  <img src="{{ candidate.user.profile.avatar.url }}" 
+       alt="{{ candidate.user.get_full_name }}" 
+       class="img-fluid rounded-circle {% if css_classes %}{{ css_classes }}{% endif %}" 
+       style="width: {{ size|default:80 }}px; height: {{ size|default:80 }}px; object-fit: cover;" 
+       onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
+{% elif candidate.symbol %}
+  <img src="{{ candidate.symbol.url }}" 
+       alt="{{ candidate.user.get_full_name }}" 
+       class="img-fluid rounded-circle {% if css_classes %}{{ css_classes }}{% endif %}" 
+       style="width: {{ size|default:80 }}px; height: {{ size|default:80 }}px; object-fit: cover;" 
+       onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
+{% else %}
+  <img src="{% static 'app/images/default-avatar.svg' %}" 
+       alt="{{ candidate.user.get_full_name }}" 
+       class="img-fluid rounded-circle {% if css_classes %}{{ css_classes }}{% endif %}" 
+       style="width: {{ size|default:80 }}px; height: {{ size|default:80 }}px; object-fit: cover;">
+{% endif %}

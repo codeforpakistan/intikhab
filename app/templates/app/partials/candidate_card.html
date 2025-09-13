@@ -1,0 +1,22 @@
+<!-- Candidate Profile Card -->
+<div class="card border-0 position-relative h-100">
+  <div class="card-body text-center">
+    {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=80 css_classes="mb-3" %}
+    
+    <h5 class="card-title mb-2">
+      <a href="{% url 'candidate_detail' election.pk candidate.id %}" class="stretched-link text-decoration-none link-dark">{{ candidate.user.get_full_name }}</a>
+    </h5>
+    
+    {% if candidate.party %}
+      <p class="card-text text-muted mb-2">{{ candidate.party.name }}</p>
+    {% else %}
+      <p class="card-text text-muted mb-2">Independent</p>
+    {% endif %}
+    
+    {% if candidate.user.profile and candidate.user.profile.location %}
+      <p class="card-text text-muted mb-2">
+        <small><i class="bi bi-geo-alt me-1"></i>{{ candidate.user.profile.location }}</small>
+      </p>
+    {% endif %}
+  </div>
+</div>

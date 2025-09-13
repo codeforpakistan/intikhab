@@ -1,0 +1,100 @@
+{% extends 'app/layouts/page.html' %}
+{% load static %}
+
+{% block title %}Terms of Service - Intikhab{% endblock %}
+
+{% block content %}
+<!-- Page Header - Full Width -->
+<header class="bg-success text-white py-4 mb-0">
+  <div class="container">
+    <h1 class="mb-0">Terms of Service</h1>
+    <p class="mb-4">Terms and conditions for using the Intikhab electronic voting platform</p>
+  </div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
+
+<!-- Content Section -->
+<article class="container py-5">
+    
+    <div class="card border-0">
+        <div class="card-body p-4">
+            <p class="text-muted mb-5"><small>Last updated: {% now "F Y" %}</small></p>
+          <section class="mb-5">
+            <h3 class="h4 mb-3">1. Acceptance of Terms</h3>
+            <p>Intikhab is an electronic voting platform that facilitates secure and transparent democratic elections in Pakistan. By using this platform, you agree to these terms and conditions.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">2. Eligibility</h3>
+            <p>To use this platform, you must:</p>
+            <ul>
+              <li>Be at least 18 years old</li>
+              <li>Be a Pakistani citizen</li>
+              <li>Have a valid email address</li>
+              <li>Be eligible to vote in the relevant election</li>
+            </ul>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">3. User Conduct</h3>
+            <p>You agree to:</p>
+            <ul>
+              <li>Provide accurate and complete information</li>
+              <li>Vote responsibly and ethically</li>
+              <li>Not attempt to manipulate or interfere with the voting process</li>
+              <li>Not share your voting credentials with others</li>
+              <li>Respect the democratic process and other users</li>
+            </ul>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">4. Data and Privacy</h3>
+            <p>Your privacy and vote secrecy are our top priorities. Please review our <a href="{% url 'privacy' %}" class="text-decoration-none">Privacy Policy</a> for details on how we handle your information and protect your vote.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">5. Voting Process</h3>
+            <p>By participating in elections through this platform:</p>
+            <ul>
+              <li>Your vote is secret and cannot be traced back to you</li>
+              <li>You can only vote once per election</li>
+              <li>Votes cannot be changed after submission</li>
+              <li>You must vote within the designated election period</li>
+            </ul>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">6. Intellectual Property</h3>
+            <p>This platform and its content are protected by copyright and belong to Code for Pakistan. User-submitted content, such as candidate profiles, remains the property of the respective users.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">7. Limitation of Liability</h3>
+            <p>Intikhab provides a secure voting platform. We do not endorse any particular candidate or political party. We are not responsible for election outcomes or political decisions made by elected officials.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">8. Service Changes</h3>
+            <p>We may modify our services to improve security and functionality. We will attempt to notify users of significant changes that may affect the voting process.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">9. Account Termination</h3>
+            <p>You may request account deletion at any time (after completing any ongoing elections). We reserve the right to suspend accounts for violations of these terms or suspicious activity.</p>
+          </section>
+
+          <section class="mb-5">
+            <h3 class="h4 mb-3">10. Security</h3>
+            <p>We employ advanced security measures including encryption and secure authentication. However, users are responsible for keeping their login credentials secure.</p>
+          </section>
+
+          <section class="mb-0">
+            <h3 class="h4 mb-3">11. Contact</h3>
+            <p>If you have questions about these terms, please <a href="{% url 'contact' %}" class="text-decoration-none">contact us</a>.</p>
+          </section>
+        </div>
+      </div>
+
+</article>
+{% endblock %}

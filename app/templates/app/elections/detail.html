@@ -2,66 +2,47 @@
 
 {% block content %}
 <!-- Election Header - Full Width -->
-<div class="bg-success text-white py-4 mb-5">
+<header class="bg-success text-white py-4 mb-0">
   <div class="container">
-    <header class="d-flex justify-content-between align-items-start">
-      <div>
-        <h1 class="mb-2">{{ election.name }}</h1>
-        <p class="lead mb-2">{{ election.description }}</p>
-        <small class="text-white-50">
-          From {{ election.start_date|date:"M d, Y H:i" }} to {{ election.end_date|date:"M d, Y H:i" }}
-        </small>
-      </div>
-      {% if can_edit %}
-      <div class="d-flex gap-2">
-        <a href="{% url 'edit_election' election.pk %}" class="btn btn-outline-light">
-          <i class="bi bi-pencil-square me-2"></i>Edit Election
-        </a>
-        {% if election.active %}
-        <form method="post" action="{% url 'close_election' election.pk %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-danger">
-            <i class="bi bi-stop-circle me-2"></i>Close Election
-          </button>
-        </form>
-        {% endif %}
-      </div>
-      {% endif %}
+    <header>
+      <h1 class="mb-0">{{ election.name }}</h1>
+      <p class="lead mb-0">{{ election.description }}</p>
     </header>
   </div>
-</div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
 
 <!-- Content Section -->
-<div class="container pb-5">
-
-<div class="row mb-4">
-  <div class="col-md-6">
-    <div class="card border-0">
-      <div class="card-body">
-        <h5 class="card-title">Election Status</h5>
-        <p class="card-text">
-          {% if election.is_voting_open %}
-            <span class="badge bg-success">Voting Open</span>
-          {% elif election.active %}
-            <span class="badge bg-warning">Election Active but Voting Closed</span>
-          {% else %}
-            <span class="badge bg-secondary">Election Closed</span>
-          {% endif %}
-        </p>
-        <p class="card-text">
-          <strong>Total Votes:</strong> {{ election.votes.count }}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+<article class="container py-5">
+  <div class="row">
+    <!-- Main Content -->
+    <div class="col-md-9">
 
 {% if vote_results %}
 <div class="mb-5">
-  <h3>Election Results</h3>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Election Results</h3>
+    {% if election.decrypted_total %}
+      <button class="btn btn-outline-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#verification-results">
+        <i class="bi bi-shield-check me-2"></i>Verify Results
+      </button>
+    {% endif %}
+  </div>
+  
   <div class="card border-0">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0">
+        <i class="bi bi-bar-chart me-2"></i>Election Results
+      </h5>
+    </div>
     <div class="card-body">
-      <p class="mb-4"><strong>Total Votes Cast:</strong> {{ vote_results.total_votes }}</p>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <p class="mb-0"><strong>Total Votes Cast:</strong> {{ vote_results.total_votes }}</p>
+        {% if election.decrypted_total %}
+          <small class="text-muted">Decrypted Total: {{ election.decrypted_total }}</small>
+        {% endif %}
+      </div>
       
       {% for result in vote_results.results %}
       <div class="mb-4">
@@ -95,60 +76,123 @@
       {% empty %}
       <p class="text-muted">No votes were cast in this election.</p>
       {% endfor %}
+      
+      <!-- Verification Results Section -->
+      {% if election.decrypted_total %}
+        <div id="verification-results" class="mt-4"></div>
+      {% endif %}
     </div>
   </div>
 </div>
 {% endif %}
 
+<!-- Voting Status Alert -->
 {% if voted %}
-<div class="alert alert-info">
+<div class="alert alert-info mb-4">
   <strong>Thank you!</strong> You have already voted in this election.
 </div>
-{% elif not election.is_voting_open %}
-<div class="alert alert-warning">
-  <strong>Voting Closed:</strong> Voting is not currently open for this election.
-</div>
-{% else %}
+{% endif %}
+
+<!-- Candidates Section - Always Visible -->
+<div class="mb-5">
+  <div class="mb-4">
+    <h3>Candidates</h3>
+  </div>
+  
+  {% if election.candidates.all %}
   <div class="row">
-  {% for candidate in election.candidates.all %}
-    <div class="col-md-4">
-      <div class="card card-body">
-        <h2 class="text-center">{{ candidate.user.get_username }}</h2>
-        <p class="text-center"><img src="{{ candidate.symbol.url }}" width="170" height="170" alt="" class="img-fluid img-thumbnail"></p>
-        <p class="mb-0 text-center"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
+    {% for candidate in election.candidates.all %}
+    <div class="col-md-4 mb-3">
+      {% include 'app/partials/candidate_card.html' with candidate=candidate election=election voted=voted %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>No candidates yet.</strong> 
+      {% if can_edit %}
+        <a href="{% url 'add_candidate' election_pk=election.pk %}">Add the first candidate</a> to get started.
+      {% else %}
+        Candidates will be added by election officials.
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+    </div> <!-- End Main Content -->
+
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="sticky-top" style="top: 1rem;">
+        
+        <!-- Election Status Card -->
+        <div class="card border-0 mb-4">
+          <div class="card-header border-0">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle me-2"></i>Election Status
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              {% with status_info=election.get_status_display %}
+                <span class="badge {{ status_info.class }}">{{ status_info.text }}</span>
+              {% endwith %}
+            </div>
+            <div class="mb-2">
+              <small class="text-muted d-block">Total Votes</small>
+              <strong class="h5">{{ election.votes.count }}</strong>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted d-block">Candidates</small>
+              <strong class="h5">{{ election.candidates.count }}</strong>
+            </div>
+            <div class="mb-2">
+              <small class="text-muted d-block">Voting Period</small>
+              <span class="d-block">{{ election.start_date|date:"M d, Y H:i" }}</span>
+              <span class="text-muted">to {{ election.end_date|date:"M d, Y H:i" }}</span>
+            </div>
+            {% if election.created_by %}
+            <div>
+              <small class="text-muted d-block">Created By</small>
+              <span>{{ election.created_by.get_full_name|default:election.created_by.username }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Actions Card -->
+        {% if can_edit %}
+        <div class="card border-0">
+          <div class="card-header border-0">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear me-2"></i>Actions
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <a href="{% url 'add_candidate' election_pk=election.pk %}" class="btn btn-success">
+                <i class="bi bi-person-plus me-2"></i>Add Candidate
+              </a>
+              <a href="{% url 'edit_election' election.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-pencil-square me-2"></i>Edit Election
+              </a>
+              {% if election.active %}
+              <form method="post" action="{% url 'close_election' election.pk %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');" class="d-grid">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                  <i class="bi bi-stop-circle me-2"></i>Close Election
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
       </div>
     </div>
-  {% endfor %}
 
-<h3>Candidates</h3>
-<div class="row">
-{% for candidate in election.candidates.all %}
-<div class="col-md-4 mb-3">
-  <div class="card border-0">
-    <div class="card-body text-center">
-      {% if candidate.symbol %}
-        <img src="{{ candidate.symbol.url }}" alt="{{ candidate.user.get_full_name }}" class="img-fluid mb-2" style="max-height: 100px;">
-      {% endif %}
-      <h5 class="card-title">{{ candidate.user.get_full_name }}</h5>
-      {% if candidate.party %}
-        <p class="card-text">{{ candidate.party.name }}</p>
-      {% endif %}
-      <a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a>
-    </div>
-  </div>
-</div>
-{% endfor %}
-</div>
-
-{% endif %}
-{% if not election.active %}
-  <div class="row">
-    <div class="col-md-12">
-      <h2>Election Results</h2>
-      <p>Decrypted Total: {{ election.decrypted_total }}</p>
-      <button class="btn btn-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#results">Verify Results</button>
-      <div id="results"></div>
-    </div>
-  </div>
-{% endif %}
+  </div> <!-- End Row -->
+</article> <!-- End Container -->
 {% endblock %}

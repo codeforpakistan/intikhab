@@ -1,0 +1,123 @@
+{% extends 'app/layouts/page.html' %}
+{% load static %}
+
+{% block title %}Contact Us - Intikhab{% endblock %}
+
+{% block content %}
+<!-- Page Header - Full Width -->
+<header class="bg-success text-white py-4 mb-0">
+  <div class="container">
+    <h1 class="mb-0">Contact Us</h1>
+    <p class="mb-4">We are here to help with your questions, suggestions, or technical issues related to the Intikhab electronic voting platform.</p>
+  </div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
+
+<!-- Content Section -->
+<article class="container py-5">
+
+      <div class="row g-4">
+        <div class="col-md-9">
+          <div class="card border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-envelope me-2"></i>Send Message</h5>
+            </div>
+            <div class="card-body p-4">
+              <p class="mb-4">Send us your questions or suggestions and we will respond promptly</p>
+              <form>
+                {% csrf_token %}
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                  </div>
+                  <div class="col-12">
+                    <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
+                    <select class="form-select" id="subject" name="subject" required>
+                      <option value="">Choose a topic...</option>
+                      <option value="technical">Technical Issue</option>
+                      <option value="voting">Voting Process Question</option>
+                      <option value="account">Account Support</option>
+                      <option value="accessibility">Accessibility Support</option>
+                      <option value="security">Security Concern</option>
+                      <option value="feedback">General Feedback</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="message" name="message" rows="10" placeholder="Please describe your question or issue in detail..." required></textarea>
+                  </div>
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="bi bi-send me-2"></i>Send Message
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card mb-4 border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-info-circle me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-envelope-fill text-success me-3 fs-5"></i>
+                <div>
+                  <strong>Email</strong><br>
+                  <a href="mailto:support@codeforpakistan.org" class="text-decoration-none">support@codeforpakistan.org</a>
+                </div>
+              </div>
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-globe text-success me-3 fs-5"></i>
+                <div>
+                  <strong>Website</strong><br>
+                  <a href="https://codeforpakistan.org/" target="_blank" class="text-decoration-none">codeforpakistan.org</a>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-shield-check text-success me-3 fs-5"></i>
+                <div>
+                  <strong>Emergency</strong><br>
+                  <small class="text-muted">For urgent security issues</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-4 border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-clock me-2"></i>Response Time</h5>
+            </div>
+            <div class="card-body">
+              <p class="mb-2"><strong>Standard Support:</strong> 24-48 hours</p>
+              <p class="mb-2"><strong>Technical Issues:</strong> 12-24 hours</p>
+              <p class="mb-0"><strong>Security Concerns:</strong> Immediate</p>
+            </div>
+          </div>
+
+          <div class="card border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-question-circle me-2"></i>Need Answers?</h5>
+            </div>
+            <div class="card-body text-center">
+              <p class="mb-4">Check our comprehensive FAQ section for answers to common questions</p>
+              <a href="{% url 'faq' %}" class="btn btn-outline-primary">
+                <i class="bi bi-question-circle me-2"></i>View FAQ
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+</article>
+{% endblock %}

@@ -1,0 +1,198 @@
+{% extends 'app/layouts/page.html' %}
+{% load static %}
+
+{% block title %}FAQ - Intikhab{% endblock %}
+
+{% block content %}
+<!-- Page Header - Full Width -->
+<header class="bg-success text-white py-4 mb-0">
+  <div class="container">
+    <h1 class="mb-0">Frequently Asked Questions</h1>
+    <p class="mb-4">Find answers to common questions about using the Intikhab electronic voting platform</p>
+  </div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
+
+<!-- Content Section -->
+<article class="container py-5">
+
+  <!-- Voting Process -->
+  <div class="card border-0 mb-5">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0"><i class="bi bi-ballot me-2"></i>Voting Process</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">How do I vote in an election?</h4>
+            <p class="text-muted small">Log in to your account, navigate to the active election, review candidates and their information, then cast your vote securely. The system will confirm your vote submission.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Can I vote multiple times?</h4>
+            <p class="text-muted small">No, each user can only vote once per election. The system prevents duplicate voting to maintain election integrity.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">When can I vote?</h4>
+            <p class="text-muted small">You can only vote during the official voting period for each election. Check the election details for start and end times.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">Can I change my vote after submission?</h4>
+            <p class="text-muted small">No, votes are final once submitted to ensure election integrity. Please review all information carefully before confirming your vote.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">What if I make a mistake while voting?</h4>
+            <p class="text-muted small">The system will show you a confirmation screen before final submission. If you notice an error, you can go back and change your selection before confirming.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Do I get a receipt for my vote?</h4>
+            <p class="text-muted small">Yes, the system provides a confirmation that your vote was successfully recorded, but without revealing your specific choice to maintain privacy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security & Privacy -->
+  <div class="card border-0 mb-5">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0"><i class="bi bi-shield-check me-2"></i>Security & Privacy</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">Is my vote secret and secure?</h4>
+            <p class="text-muted small">Yes, we use advanced encryption to ensure your vote is completely anonymous and secure. No one can trace your vote back to you. <a href="{% url 'privacy' %}" class="text-decoration-none">See privacy policy</a></p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">How is my personal information protected?</h4>
+            <p class="text-muted small">We follow strict data protection protocols and only collect necessary information for voter verification. All data is encrypted and securely stored.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Can administrators see how I voted?</h4>
+            <p class="text-muted small">No, even system administrators cannot see individual voting choices. The encryption ensures complete voter privacy.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">How do you prevent election fraud?</h4>
+            <p class="text-muted small">We use multiple security measures including voter authentication, encryption, audit trails, and prevention of duplicate voting.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Are the election results verifiable?</h4>
+            <p class="text-muted small">Yes, the system provides verification tools that allow independent verification of results without compromising voter privacy.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">What happens to my data after the election?</h4>
+            <p class="text-muted small">Personal data is retained only as long as necessary for legal and audit requirements, then securely deleted according to our data retention policy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Support -->
+  <div class="card border-0 mb-5">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0"><i class="bi bi-gear me-2"></i>Technical Support</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">What if I'm having technical issues?</h4>
+            <p class="text-muted small">Try refreshing your browser, clearing your browser cache, or using a different browser. If issues persist, <a href="{% url 'contact' %}" class="text-decoration-none">contact us</a> immediately.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Which browsers are supported?</h4>
+            <p class="text-muted small">Intikhab works with all modern browsers including Chrome, Firefox, Safari, and Edge. Make sure you're using the latest version.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Can I vote on mobile devices?</h4>
+            <p class="text-muted small">Yes, the platform is fully responsive and works on smartphones and tablets. We recommend using the latest version of your mobile browser.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">What if the system is down during voting?</h4>
+            <p class="text-muted small">We have backup systems and monitoring in place. If you encounter issues during critical voting periods, contact our support team immediately.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Do I need to install any software?</h4>
+            <p class="text-muted small">No, Intikhab is entirely web-based. You only need a modern browser and internet connection to participate in elections.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">What if I forgot my login credentials?</h4>
+            <p class="text-muted small">Use the password reset feature on the login page, or contact support if you need help recovering your account.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account & Access -->
+  <div class="card border-0 mb-5">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0"><i class="bi bi-person-check me-2"></i>Account & Access</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">Who can create an account?</h4>
+            <p class="text-muted small">Account creation is typically managed by election administrators. Contact your organization's election officials for access.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">How do I update my profile information?</h4>
+            <p class="text-muted small">Visit your profile page after logging in to update your personal information, but note that some election-critical data may be locked during active voting periods.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">What if I can't access my account?</h4>
+            <p class="text-muted small">Try resetting your password first. If that doesn't work, contact support with your account details for assistance.</p>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-4">
+            <h4 class="h6">Can I delete my account?</h4>
+            <p class="text-muted small">Account deletion may be restricted during active elections. Contact support to discuss account removal options and data deletion.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">Why can't I see certain elections?</h4>
+            <p class="text-muted small">Elections may be restricted to specific groups or user categories. You can only participate in elections where you're an eligible voter.</p>
+          </div>
+          <div class="mb-4">
+            <h4 class="h6">How do I know if I'm eligible to vote?</h4>
+            <p class="text-muted small">Eligible elections will appear in your elections list. If you believe you should have access to an election, contact the election administrators.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Still Need Help? -->
+  <div class="card border-0">
+    <div class="card-header border-0">
+      <h5 class="card-title mb-0"><i class="bi bi-headset me-2"></i>Still Need Help?</h5>
+    </div>
+    <div class="card-body text-center">
+      <p class="mb-4">Can't find the answer to your question? We're here to help!</p>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="{% url 'contact' %}" class="btn btn-primary">
+          <i class="bi bi-envelope me-2"></i>Contact Support
+        </a>
+        <a href="{% url 'accessibility' %}" class="btn btn-outline-primary">
+          <i class="bi bi-universal-access me-2"></i>Accessibility Help
+        </a>
+        <a href="{% url 'privacy' %}" class="btn btn-outline-primary">
+          <i class="bi bi-shield-check me-2"></i>Privacy Policy
+        </a>
+      </div>
+    </div>
+  </div>
+
+</article>
+{% endblock %}

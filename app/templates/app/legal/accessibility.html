@@ -1,0 +1,208 @@
+{% extends 'app/layouts/page.html' %}
+{% load static %}
+
+{% block title %}Accessibility - Intikhab{% endblock %}
+
+{% block content %}
+<!-- Page Header - Full Width -->
+<header class="bg-success text-white py-4 mb-0">
+  <div class="container">
+    <h1 class="mb-0">Accessibility</h1>
+    <p class="mb-4">Intikhab is accessible to every Pakistani citizen. We ensure that people with different needs can easily use this voting platform.</p>
+  </div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
+
+<!-- Content Section -->
+<article class="container py-5">
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+              <div class="card-header border-0">
+                  <h5 class="card-title mb-0">
+                      <i class="bi bi-eye me-2"></i>
+                    Visual Accessibility</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="card-subtitle text-muted mb-3">High contrast, large fonts, and screen reader support</p>
+              <ul class="list-unstyled text-start">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Screen reader compatibility</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Keyboard navigation</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>High contrast mode</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Text size controls</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+              <div class="card-header border-0">
+                  <h5 class="card-title mb-0">
+                      <i class="bi bi-volume-up me-2"></i>
+                    Auditory Accessibility</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="card-subtitle text-muted mb-3">Visual alternatives and audio features</p>
+              <ul class="list-unstyled text-start">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Audio descriptions</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Visual cues for audio</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Volume controls</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Silent mode options</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+              <div class="card-header border-0">
+                  <h5 class="card-title mb-0">
+                      <i class="bi bi-hand-index me-2"></i>
+                    Motor Accessibility</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="card-subtitle text-muted mb-3">Easy controls and alternative input methods</p>
+              <ul class="list-unstyled text-start">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Large click areas</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Touch and mouse support</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Extended timeouts</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Easy navigation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+              <div class="card-header border-0">
+                  <h5 class="card-title mb-0">
+                      <i class="bi bi-lightbulb me-2"></i>
+                    Cognitive Accessibility</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="card-subtitle text-muted mb-3">Simple language and clear instructions</p>
+              <ul class="list-unstyled text-start">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Plain language</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Clear instructions</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Step-by-step guides</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Help sections</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-5 border-0">
+        <div class="card-header border-0">
+          <h5 class="card-title mb-0"><i class="bi bi-devices me-2"></i>Device Support</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-4">Optimal experience across different devices</p>
+          <div class="row text-center">
+            <div class="col-md-4 mb-3">
+              <i class="bi bi-display display-4 text-primary mb-2"></i>
+              <h4 class="h6">Desktop</h4>
+              <p class="text-muted small">All modern browsers</p>
+            </div>
+            <div class="col-md-4 mb-3">
+              <i class="bi bi-phone display-4 text-primary mb-2"></i>
+              <h4 class="h6">Mobile</h4>
+              <p class="text-muted small">Responsive design</p>
+            </div>
+            <div class="col-md-4 mb-3">
+              <i class="bi bi-tools display-4 text-primary mb-2"></i>
+              <h4 class="h6">Assistive Tech</h4>
+              <p class="text-muted small">All assistive devices</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-translate me-2"></i>Language Features</h5>
+            </div>
+            <div class="card-body">
+              <p>Full access in local languages</p>
+              <ul class="list-unstyled">
+                <li><i class="bi bi-check-circle text-success me-2"></i>Complete interface in Urdu and English</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>RTL (Right-to-Left) support</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Easy language switching</li>
+                <li><i class="bi bi-check-circle text-success me-2"></i>Local font support</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card h-100 border-0">
+            <div class="card-header border-0">
+              <h5 class="card-title mb-0"><i class="bi bi-question-circle me-2"></i>Help and Support</h5>
+            </div>
+            <div class="card-body">
+              <p>Assistance for accessibility issues</p>
+              <ul class="list-unstyled">
+                <li><i class="bi bi-book text-info me-2"></i><strong>Online Help:</strong> Detailed guides and tutorials</li>
+                <li><i class="bi bi-telephone text-info me-2"></i><strong>Phone Support:</strong> Dedicated helpline for accessibility issues</li>
+              </ul>
+              <a href="{% url 'contact' %}" class="btn btn-info btn-sm">
+                <i class="bi bi-headset me-1"></i>Get Help
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-5 border-0">
+        <div class="card-header border-0">
+          <h5 class="card-title mb-0"><i class="bi bi-award me-2"></i>Standards Compliance</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-4">We follow international accessibility standards</p>
+          <div class="row text-center">
+            <div class="col-md-4 mb-3">
+              <div class="p-3">
+                <h4 class="h6 text-primary">WCAG 2.1</h4>
+                <p class="text-muted small mb-0">AA Level</p>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="p-3">
+                <h4 class="h6 text-primary">Section 508</h4>
+                <p class="text-muted small mb-0">US Standard</p>
+              </div>
+            </div>
+            <div class="col-md-4 mb-3">
+              <div class="p-3">
+                <h4 class="h6 text-primary">EN 301 549</h4>
+                <p class="text-muted small mb-0">European Standard</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0">
+        <div class="card-header border-0">
+          <h5 class="card-title mb-0"><i class="bi bi-chat-dots me-2"></i>Your Feedback</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-4">Your feedback is important for accessibility improvements</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'contact' %}" class="btn btn-outline-primary">
+              <i class="bi bi-chat-square-text me-1"></i>Give Feedback
+            </a>
+            <a href="{% url 'contact' %}" class="btn btn-outline-primary">
+              <i class="bi bi-envelope me-1"></i>Contact Accessibility Team
+            </a>
+          </div>
+        </div>
+      </div>
+
+</article>
+{% endblock %}

@@ -17,11 +17,47 @@ from app.email_utils import send_vote_confirmation
 class VoteView(LoginRequiredMixin, View):
     """Handle user voting for a candidate"""
     
-    def post(self, request, election_id, candidate_id):
+    def get(self, request, election_pk, pk):
+        """Display voting confirmation page"""
+        try:
+            election = get_object_or_404(Election, pk=election_pk)
+            candidate = get_object_or_404(Candidate, pk=pk)
+            
+            # Verify candidate belongs to this election
+            if candidate.election != election:
+                messages.error(request, "Invalid candidate for this election.")
+                return redirect('election_detail', pk=election.pk)
+            
+            # Check if voting is allowed
+            if not election.is_voting_open():
+                messages.error(request, "Voting is not currently open for this election.")
+                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+            
+            # Check if user already voted
+            if Vote.objects.filter(user=request.user, election=election).exists():
+                messages.error(request, "You have already voted in this election.")
+                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+            
+            # Render voting confirmation page
+            return render(request, 'app/voting/confirm.html', {
+                'election': election,
+                'candidate': candidate
+            })
+            
+        except (Election.DoesNotExist, Candidate.DoesNotExist):
+            messages.error(request, "Invalid election or candidate.")
+            return redirect('election_list')
+    
+    def post(self, request, election_pk, pk):
         """Process a vote submission"""
         try:
-            election = get_object_or_404(Election, pk=election_id)
-            candidate = get_object_or_404(Candidate, pk=candidate_id)
+            election = get_object_or_404(Election, pk=election_pk)
+            candidate = get_object_or_404(Candidate, pk=pk)
+            
+            # Verify candidate belongs to this election
+            if candidate.election != election:
+                messages.error(request, "Invalid candidate for this election.")
+                return redirect('election_detail', pk=election.pk)
             
             # Validate voting conditions
             if not self._can_vote(request.user, election, candidate):
@@ -51,7 +87,7 @@ class VoteView(LoginRequiredMixin, View):
             return redirect('election_list')
         except Exception as e:
             messages.error(request, "An error occurred while processing your vote.")
-            return redirect('election_detail', pk=election_id)
+            return redirect('election_detail', pk=election_pk)
     
     def _can_vote(self, user, election, candidate):
         """Check if user can vote in this election for this candidate"""
@@ -83,7 +119,7 @@ class CloseElectionView(LoginRequiredMixin, View):
     
     def post(self, request, pk):
         """Close the specified election"""
-        if not self._is_official(request.user):
+        if not request.user.can_close_elections():
             messages.error(request, "You don't have permission to close elections.")
             return redirect('election_detail', pk=pk)
         
@@ -98,10 +134,6 @@ class CloseElectionView(LoginRequiredMixin, View):
         except Election.DoesNotExist:
             messages.error(request, "Election not found.")
             return redirect('election_list')
-    
-    def _is_official(self, user):
-        """Check if user is an official who can close elections"""
-        return user.is_superuser or user.groups.filter(name='Officials').exists()
 
 
 class VerifyResultsView(LoginRequiredMixin, View):
