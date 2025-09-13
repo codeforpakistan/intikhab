@@ -1,8 +1,8 @@
 {% extends "app/layouts/base.html" %}
 
 {% block page %}
-<div class="d-flex h-100 align-items-center mx-auto w-25">
-  <form class="card card-body" action="{% url 'login' %}" method="post">
+<div class="d-flex vh-100 w-100 align-items-center justify-content-center bg-success">
+  <form class="card card-body bg-white border-0" style="min-width: 400px; max-width: 500px;" action="{% url 'login' %}" method="post">
     {% csrf_token %}
     <h5 class="card-title mb-3">Login to Intikhab</h5>
 
