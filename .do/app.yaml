@@ -30,8 +30,8 @@ services:
     value: ".ondigitalocean.app,intikhab.codeforpakistan.org"
     scope: RUN_TIME
   - key: DATABASE_URL
+    value: "sqlite:///db.sqlite3"
     scope: RUN_TIME
-    type: SECRET
   - key: LANGUAGE_CODE
     value: "en-us"
     scope: RUN_TIME
@@ -123,13 +123,7 @@ services:
     scope: RUN_TIME
     type: SECRET
 
-databases:
-- name: intikhab-db
-  engine: PG
-  version: "15"
-  size: basic
-  num_nodes: 1
-  production: false
+
 
 static_sites:
 - name: intikhab-static
