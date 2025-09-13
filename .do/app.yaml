@@ -1,0 +1,144 @@
+name: intikhab-voting-system
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: codeforpakistan/intikhab
+    branch: main
+    deploy_on_push: true
+  build_command: chmod +x deploy.sh && ./deploy.sh
+  run_command: gunicorn --worker-tmp-dir /dev/shm --config gunicorn_config.py project.wsgi
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  http_port: 8080
+  health_check:
+    http_path: /
+    initial_delay_seconds: 60
+    period_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+    timeout_seconds: 5
+  envs:
+  - key: DEBUG
+    value: "False"
+    scope: RUN_TIME
+  - key: SECRET_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: ALLOWED_HOSTS
+    value: ".ondigitalocean.app,intikhab.codeforpakistan.org"
+    scope: RUN_TIME
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    type: SECRET
+  - key: LANGUAGE_CODE
+    value: "en-us"
+    scope: RUN_TIME
+  - key: TIME_ZONE
+    value: "Asia/Karachi"
+    scope: RUN_TIME
+  - key: USE_I18N
+    value: "True"
+    scope: RUN_TIME
+  - key: USE_TZ
+    value: "True"
+    scope: RUN_TIME
+  - key: SITE_ID
+    value: "1"
+    scope: RUN_TIME
+  - key: ACCOUNT_EMAIL_VERIFICATION
+    value: "mandatory"
+    scope: RUN_TIME
+  - key: ACCOUNT_EMAIL_REQUIRED
+    value: "True"
+    scope: RUN_TIME
+  - key: ACCOUNT_UNIQUE_EMAIL
+    value: "True"
+    scope: RUN_TIME
+  - key: ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION
+    value: "True"
+    scope: RUN_TIME
+  - key: SOCIALACCOUNT_AUTO_SIGNUP
+    value: "True"
+    scope: RUN_TIME
+  - key: SOCIALACCOUNT_LOGIN_ON_GET
+    value: "True"
+    scope: RUN_TIME
+  - key: SOCIALACCOUNT_QUERY_EMAIL
+    value: "True"
+    scope: RUN_TIME
+  - key: LOGIN_REDIRECT_URL
+    value: "/"
+    scope: RUN_TIME
+  - key: LOGOUT_REDIRECT_URL
+    value: "/"
+    scope: RUN_TIME
+  - key: STATIC_URL
+    value: "static/"
+    scope: RUN_TIME
+  - key: MEDIA_URL
+    value: "media/"
+    scope: RUN_TIME
+  - key: EMAIL_BACKEND
+    value: "django.core.mail.backends.smtp.EmailBackend"
+    scope: RUN_TIME
+  - key: EMAIL_HOST
+    value: "smtp.sendgrid.net"
+    scope: RUN_TIME
+  - key: EMAIL_PORT
+    value: "587"
+    scope: RUN_TIME
+  - key: EMAIL_USE_TLS
+    value: "True"
+    scope: RUN_TIME
+  - key: EMAIL_HOST_USER
+    value: "apikey"
+    scope: RUN_TIME
+  - key: EMAIL_HOST_PASSWORD
+    scope: RUN_TIME
+    type: SECRET
+  - key: DEFAULT_FROM_EMAIL
+    value: "noreply@codeforpakistan.org"
+    scope: RUN_TIME
+  - key: SENDGRID_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+  - key: SECURE_HSTS_SECONDS
+    value: "31536000"
+    scope: RUN_TIME
+  - key: SECURE_SSL_REDIRECT
+    value: "True"
+    scope: RUN_TIME
+  - key: SESSION_COOKIE_SECURE
+    value: "True"
+    scope: RUN_TIME
+  - key: CSRF_COOKIE_SECURE
+    value: "True"
+    scope: RUN_TIME
+  - key: GOOGLE_OAUTH2_CLIENT_ID
+    scope: RUN_TIME
+    type: SECRET
+  - key: GOOGLE_OAUTH2_CLIENT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+
+databases:
+- name: intikhab-db
+  engine: PG
+  version: "15"
+  size: basic
+  num_nodes: 1
+  production: false
+
+static_sites:
+- name: intikhab-static
+  source_dir: /
+  github:
+    repo: codeforpakistan/intikhab
+    branch: main
+    deploy_on_push: true
+  build_command: python manage.py collectstatic --noinput
+  output_dir: /staticfiles
+  index_document: index.html
+  error_document: 404.html

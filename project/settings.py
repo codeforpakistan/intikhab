@@ -47,6 +47,13 @@ env = environ.Env(
     EMAIL_HOST_PASSWORD=(str, ''),
     DEFAULT_FROM_EMAIL=(str, 'noreply@example.com'),
     SENDGRID_API_KEY=(str, ''),
+    # Security settings
+    SECURE_HSTS_SECONDS=(int, 0),
+    SECURE_SSL_REDIRECT=(bool, False),
+    SESSION_COOKIE_SECURE=(bool, False),
+    CSRF_COOKIE_SECURE=(bool, False),
+    SECURE_BROWSER_XSS_FILTER=(bool, True),
+    SECURE_CONTENT_TYPE_NOSNIFF=(bool, True),
 )
 
 # Take environment variables from .env file
@@ -87,6 +94,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -160,9 +168,13 @@ USE_TZ = env('USE_TZ')
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = env('STATIC_URL')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / "app" / "static",
 ]
+
+# WhiteNoise configuration for production static file serving
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (user uploads)
 MEDIA_URL = env('MEDIA_URL')
@@ -187,6 +199,20 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 # SendGrid API Key (for additional SendGrid features if needed)
 SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+
+# Security Settings
+SECURE_HSTS_SECONDS = env('SECURE_HSTS_SECONDS')
+SECURE_SSL_REDIRECT = env('SECURE_SSL_REDIRECT')
+SESSION_COOKIE_SECURE = env('SESSION_COOKIE_SECURE')
+CSRF_COOKIE_SECURE = env('CSRF_COOKIE_SECURE')
+SECURE_BROWSER_XSS_FILTER = env('SECURE_BROWSER_XSS_FILTER')
+SECURE_CONTENT_TYPE_NOSNIFF = env('SECURE_CONTENT_TYPE_NOSNIFF')
+
+# Additional security headers for production
+if not DEBUG:
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_REFERRER_POLICY = "same-origin"
 
 # Django Allauth Configuration
 AUTHENTICATION_BACKENDS = [

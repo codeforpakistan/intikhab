@@ -163,3 +163,36 @@ cython_debug/
 
 *.ipynb
 .github/
+
+# Django static files
+staticfiles/
+/static/
+
+# Media files (user uploads)
+uploads/
+media/
+
+# Local environment files
+.env.local
+.env.production
+.env.staging
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+
+# Node.js (if using frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
