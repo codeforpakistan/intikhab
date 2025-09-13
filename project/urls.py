@@ -16,22 +16,47 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from app.views import index, profile, ElectionListView, ElectionDetailView, VerifyResultsView, vote, close_election
 from django.contrib.auth.decorators import login_required
 from django.conf.urls.static import static
 from django.conf import settings
+
+# Import views from the new organized structure
+from app.views import (
+    # Base views
+    index, profile,
+    # Election views
+    ElectionListView, ElectionDetailView, ElectionCreateView, ElectionUpdateView,
+    # Candidate views
+    CandidateCreateView, CandidateUpdateView, CandidateDeleteView,
+    # Vote views
+    VoteView, CloseElectionView, VerifyResultsView
+)
 
 admin.site.site_header = 'Election Management System'
 admin.site.site_title = 'Intikhab'
 
 urlpatterns = [
+    # Base views
     path('', index, name='index'),
-    path('elections', login_required(ElectionListView.as_view()), name='election_list'),
-    path('elections/<int:pk>', login_required(ElectionDetailView.as_view()), name='election_detail'),
-    path('elections/<int:pk>/close', close_election, name='close_election'),
-    path('elections/<int:election_id>/vote/<int:candidate_id>', vote, name='vote'),
-    path('elections/<int:election_id>/verify-results', login_required(VerifyResultsView.as_view()), name='verify_results'),
     path('profile', profile, name='profile'),
+    
+    # Election management
+    path('elections', login_required(ElectionListView.as_view()), name='election_list'),
+    path('elections/create', ElectionCreateView.as_view(), name='create_election'),
+    path('elections/<int:pk>', login_required(ElectionDetailView.as_view()), name='election_detail'),
+    path('elections/<int:pk>/edit', ElectionUpdateView.as_view(), name='edit_election'),
+    path('elections/<int:pk>/close', CloseElectionView.as_view(), name='close_election'),
+    
+    # Candidate management
+    path('elections/<int:election_pk>/candidates/add', CandidateCreateView.as_view(), name='add_candidate'),
+    path('candidates/<int:pk>/edit', CandidateUpdateView.as_view(), name='edit_candidate'),
+    path('candidates/<int:pk>/delete', CandidateDeleteView.as_view(), name='delete_candidate'),
+    
+    # Voting and results
+    path('elections/<int:election_id>/vote/<int:candidate_id>', VoteView.as_view(), name='vote'),
+    path('elections/<int:election_id>/verify-results', login_required(VerifyResultsView.as_view()), name='verify_results'),
+    
+    # Authentication
     path("accounts/", include("django.contrib.auth.urls")),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),

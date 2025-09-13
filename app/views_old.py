@@ -2,14 +2,12 @@ import uuid
 from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.db.models import Count
 from collections import defaultdict
 from app.models import Election, Candidate, Vote
+from app.forms import ElectionForm
 from app.encryption import Encryption
 from app.email_utils import send_vote_confirmation
-from app.encryption import Encryption, Ciphertext
 import json
 
 # Create your views here.
@@ -182,3 +180,32 @@ class VerifyResultsView(View):
         else:
             verified = True
         return render(request, 'app/elections/verify_results.html', {'election': election, 'verified': verified})
+
+@login_required
+def create_election(request):
+    # Check if user is superuser or belongs to Officials group
+    is_official = request.user.is_superuser or request.user.groups.filter(name='Officials').exists()
+    if not is_official:
+        messages.error(request, "You don't have permission to create elections.")
+        return redirect('election_list')
+    
+    if request.method == 'POST':
+        election_form = ElectionForm(request.POST)
+        
+        if election_form.is_valid():
+            try:
+                # Create the election
+                election = election_form.save(commit=False)
+                election.active = True  # Make the election active by default
+                election.save()
+                
+                messages.success(request, f"Election '{election.name}' has been created successfully! You can now add candidates to this election.")
+                return redirect('election_detail', pk=election.pk)
+            except Exception as e:
+                messages.error(request, f"Error creating election: {str(e)}")
+    else:
+        election_form = ElectionForm()
+    
+    return render(request, 'app/elections/create.html', {
+        'election_form': election_form,
+    })

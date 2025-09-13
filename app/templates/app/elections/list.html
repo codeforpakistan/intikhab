@@ -6,6 +6,11 @@
   <div class="container">
     <div class="d-flex justify-content-between align-items-center">
       <h1 class="mb-0">Elections</h1>
+      {% if request.user.is_superuser %}
+        <a href="{% url 'create_election' %}" class="btn btn-light">
+          <i class="bi bi-plus-circle me-2"></i>Create New Election
+        </a>
+      {% endif %}
     </div>
   </div>
 </header>

@@ -10,6 +10,24 @@
         <li class="nav-item">
           <a class="nav-link active" href="{% url 'election_list' %}">Elections</a>
         </li>
+        {% comment %} Show Create Election for superusers or Officials group members {% endcomment %}
+        {% if request.user.is_superuser %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'create_election' %}">
+            <i class="bi bi-plus-circle me-1"></i>Create Election
+          </a>
+        </li>
+        {% else %}
+          {% for group in request.user.groups.all %}
+            {% if group.name == "Officials" %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'create_election' %}">
+            <i class="bi bi-plus-circle me-1"></i>Create Election
+          </a>
+        </li>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
         {% endif %}
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

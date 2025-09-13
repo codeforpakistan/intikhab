@@ -51,14 +51,39 @@ class Command(BaseCommand):
             official.save()
             self.stdout.write(self.style.SUCCESS('User created: "%s"' % official.username))
 
-            candidate = User.objects.create_user(
-                username="candidate",
-                email="candidate@example.org",
-                password="candidate"
+            # Create multiple candidate users
+            candidate1 = User.objects.create_user(
+                username="candidate1",
+                email="candidate1@example.org",
+                password="candidate1",
+                first_name="John",
+                last_name="Smith"
             )
-            candidate.groups.add(candidates)
-            candidate.save()
-            self.stdout.write(self.style.SUCCESS('User created: "%s"' % candidate.username))
+            candidate1.groups.add(candidates)
+            candidate1.save()
+            self.stdout.write(self.style.SUCCESS('User created: "%s"' % candidate1.username))
+
+            candidate2 = User.objects.create_user(
+                username="candidate2",
+                email="candidate2@example.org",
+                password="candidate2",
+                first_name="Jane",
+                last_name="Doe"
+            )
+            candidate2.groups.add(candidates)
+            candidate2.save()
+            self.stdout.write(self.style.SUCCESS('User created: "%s"' % candidate2.username))
+
+            candidate3 = User.objects.create_user(
+                username="candidate3",
+                email="candidate3@example.org",
+                password="candidate3",
+                first_name="Mike",
+                last_name="Johnson"
+            )
+            candidate3.groups.add(candidates)
+            candidate3.save()
+            self.stdout.write(self.style.SUCCESS('User created: "%s"' % candidate3.username))
             
             citizen = User.objects.create_superuser(
                 username="citizen",
@@ -69,15 +94,14 @@ class Command(BaseCommand):
             citizen.save()
             self.stdout.write(self.style.SUCCESS('User created: "%s"' % citizen.username))
 
-            encryption = Encryption()
-            public_key = encryption.paillier.keys['public_key']
-            private_key = encryption.paillier.keys['private_key']
-
         except:
             pass
 
-
+        # Create encryption keys (moved outside try-except block)
         encryption = Encryption()
+        public_key = encryption.paillier.keys['public_key']
+        private_key = encryption.paillier.keys['private_key']
+
         election = Election.objects.create(
             name="Presidential Election",
             start_date=datetime.now(timezone.utc),
@@ -88,7 +112,7 @@ class Command(BaseCommand):
             active=True,
         )
         self.stdout.write(self.style.SUCCESS("Successfully created dummy election"))
-        self.stdout.write(self.style.SUCCESS(encryption.paillier.private_key['phi']))
+        self.stdout.write(self.style.SUCCESS(f"Private key: {private_key}"))
 
 
         rnc = Party.objects.create(

@@ -10,6 +10,7 @@ class Election(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     description = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='created_elections', null=True, blank=True)
     private_key = models.CharField(max_length=500, default="", editable=False)
     public_key = models.CharField(max_length=500, default="", editable=False)
     encrypted_positive_total = models.CharField(max_length=5000, default="", editable=False)
@@ -22,6 +23,12 @@ class Election(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def is_voting_open(self):
+        """Check if voting is currently open for this election"""
+        from django.utils import timezone
+        now = timezone.now()
+        return self.active and self.start_date <= now <= self.end_date
     
 class Party(models.Model):
     class Meta:

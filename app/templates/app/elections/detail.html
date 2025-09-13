@@ -12,14 +12,19 @@
           From {{ election.start_date|date:"M d, Y H:i" }} to {{ election.end_date|date:"M d, Y H:i" }}
         </small>
       </div>
-      {% if request.user.is_superuser and election.active %}
-      <div>
+      {% if can_edit %}
+      <div class="d-flex gap-2">
+        <a href="{% url 'edit_election' election.pk %}" class="btn btn-outline-light">
+          <i class="bi bi-pencil-square me-2"></i>Edit Election
+        </a>
+        {% if election.active %}
         <form method="post" action="{% url 'close_election' election.pk %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');">
           {% csrf_token %}
           <button type="submit" class="btn btn-danger">
             <i class="bi bi-stop-circle me-2"></i>Close Election
           </button>
         </form>
+        {% endif %}
       </div>
       {% endif %}
     </header>

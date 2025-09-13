@@ -1,0 +1,99 @@
+{% extends 'app/layouts/page.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Header - Full Width -->
+<header class="bg-success text-white py-4 mb-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1 class="mb-0">Create New Election</h1>
+      <a href="{% url 'election_list' %}" class="btn btn-light">
+        <i class="bi bi-arrow-left me-2"></i>Back to Elections
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Content Section -->
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+    {% csrf_token %}
+    
+    <!-- Election Details Card -->
+    <div class="card border-0 mb-4">
+        <div class="card-header bg-secondary text-white">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-info-circle me-2"></i>Election Details
+        </h5>
+        </div>
+        <div class="card-body">
+        <!-- Election Name - Full Width -->
+        <div class="mb-3">
+            <label for="{{ election_form.name.id_for_label }}" class="form-label">{{ election_form.name.label }}</label>
+            {{ election_form.name }}
+            {% if election_form.name.errors %}
+                <div class="invalid-feedback d-block">
+                {{ election_form.name.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Description - Full Width -->
+        <div class="mb-3">
+            <label for="{{ election_form.description.id_for_label }}" class="form-label">{{ election_form.description.label }}</label>
+            {{ election_form.description }}
+            {% if election_form.description.errors %}
+                <div class="invalid-feedback d-block">
+                {{ election_form.description.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Start and End Dates - Same Line -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ election_form.start_date.id_for_label }}" class="form-label">{{ election_form.start_date.label }}</label>
+                {{ election_form.start_date }}
+                {% if election_form.start_date.help_text %}
+                    <div class="form-text">{{ election_form.start_date.help_text }}</div>
+                {% endif %}
+                {% if election_form.start_date.errors %}
+                    <div class="invalid-feedback d-block">
+                    {{ election_form.start_date.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ election_form.end_date.id_for_label }}" class="form-label">{{ election_form.end_date.label }}</label>
+                {{ election_form.end_date }}
+                {% if election_form.end_date.help_text %}
+                    <div class="form-text">{{ election_form.end_date.help_text }}</div>
+                {% endif %}
+                {% if election_form.end_date.errors %}
+                    <div class="invalid-feedback d-block">
+                    {{ election_form.end_date.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% if election_form.non_field_errors %}
+            <div class="alert alert-danger">
+            {{ election_form.non_field_errors }}
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <a href="{% url 'election_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+        <button type="submit" class="btn btn-success">
+        <i class="bi bi-check-circle me-2"></i>Create Election
+        </button>
+    </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
