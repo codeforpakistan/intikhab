@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from app.models import Election, Candidate, Party, Vote
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
-
+from app.encryption import Encryption
 
 class Command(BaseCommand):
     help = "Sets up a dummy election and candidates"
@@ -72,14 +72,19 @@ class Command(BaseCommand):
         except:
             pass
 
-        
+
+        encryption = Encryption()
         election = Election.objects.create(
             name="Presidential Election",
             start_date="2022-01-01 00:00:00",
             end_date="2022-01-31 23:59:59",
             description="This is a dummy election",
+            public_key=f"{encryption.paillier.public_key['g']},{encryption.paillier.public_key['n']}",
             active=True,
         )
+        self.stdout.write(self.style.SUCCESS("Successfully created dummy election"))
+        self.stdout.write(self.style.SUCCESS(encryption.paillier.private_key['phi']))
+
 
         rnc = Party.objects.create(
             name="Republican Party",
@@ -92,4 +97,4 @@ class Command(BaseCommand):
         )
 
 
-        self.stdout.write(self.style.SUCCESS("Successfully created dummy election and candidates"))
+        self.stdout.write(self.style.SUCCESS("Successfully created parties"))

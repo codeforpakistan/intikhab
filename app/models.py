@@ -1,17 +1,24 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 class Election(models.Model):
     name = models.CharField(max_length=100)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
+    public_key = models.TextField(null=True, blank=True)
     active = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+    
+    def is_voting_open(self):
+        """Check if voting is currently open for this election"""
+        now = timezone.now()
+        return self.active and self.start_date <= now <= self.end_date
 
 class Party(models.Model):
     class Meta:
@@ -41,7 +48,7 @@ class Vote(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
-    ballot = models.CharField(max_length=100)
+    ballot = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
