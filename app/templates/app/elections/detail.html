@@ -1,17 +1,37 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<header>
-  <h1>{{ election.name }}</h1>
-  <p class="lead">{{ election.description }}</p>
-  <small class="text-muted">
-    From {{ election.start_date|date:"M d, Y H:i" }} to {{ election.end_date|date:"M d, Y H:i" }}
-  </small>
-</header>
+<!-- Election Header - Full Width -->
+<div class="bg-success text-white py-4 mb-5">
+  <div class="container">
+    <header class="d-flex justify-content-between align-items-start">
+      <div>
+        <h1 class="mb-2">{{ election.name }}</h1>
+        <p class="lead mb-2">{{ election.description }}</p>
+        <small class="text-white-50">
+          From {{ election.start_date|date:"M d, Y H:i" }} to {{ election.end_date|date:"M d, Y H:i" }}
+        </small>
+      </div>
+      {% if request.user.is_superuser and election.active %}
+      <div>
+        <form method="post" action="{% url 'close_election' election.pk %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-stop-circle me-2"></i>Close Election
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </header>
+  </div>
+</div>
+
+<!-- Content Section -->
+<div class="container pb-5">
 
 <div class="row mb-4">
   <div class="col-md-6">
-    <div class="card">
+    <div class="card border-0">
       <div class="card-body">
         <h5 class="card-title">Election Status</h5>
         <p class="card-text">
@@ -20,7 +40,7 @@
           {% elif election.active %}
             <span class="badge bg-warning">Election Active but Voting Closed</span>
           {% else %}
-            <span class="badge bg-secondary">Election Inactive</span>
+            <span class="badge bg-secondary">Election Closed</span>
           {% endif %}
         </p>
         <p class="card-text">
@@ -30,6 +50,50 @@
     </div>
   </div>
 </div>
+
+{% if vote_results %}
+<div class="mb-5">
+  <h3>Election Results</h3>
+  <div class="card border-0">
+    <div class="card-body">
+      <p class="mb-4"><strong>Total Votes Cast:</strong> {{ vote_results.total_votes }}</p>
+      
+      {% for result in vote_results.results %}
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex align-items-center">
+            {% if result.candidate.symbol %}
+              <img src="{{ result.candidate.symbol.url }}" alt="{{ result.candidate.user.get_full_name }}" class="me-3" style="width: 40px; height: 40px; object-fit: cover;">
+            {% endif %}
+            <div>
+              <h6 class="mb-0">{{ result.candidate.user.get_full_name }}</h6>
+              {% if result.candidate.party %}
+                <small class="text-muted">{{ result.candidate.party.name }}</small>
+              {% endif %}
+            </div>
+          </div>
+          <div class="text-end">
+            <strong>{{ result.votes }} votes</strong>
+            <div><small class="text-muted">{{ result.percentage }}%</small></div>
+          </div>
+        </div>
+        <div class="progress" style="height: 8px;">
+          <div class="progress-bar {% if forloop.first %}bg-success{% else %}bg-secondary{% endif %}" 
+               role="progressbar" 
+               style="width: {{ result.percentage }}%" 
+               aria-valuenow="{{ result.percentage }}" 
+               aria-valuemin="0" 
+               aria-valuemax="100">
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No votes were cast in this election.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
 
 {% if voted %}
 <div class="alert alert-info">
@@ -45,7 +109,7 @@
 <div class="row">
 {% for candidate in election.candidates.all %}
 <div class="col-md-4 mb-3">
-  <div class="card">
+  <div class="card border-0">
     <div class="card-body text-center">
       {% if candidate.symbol %}
         <img src="{{ candidate.symbol.url }}" alt="{{ candidate.user.get_full_name }}" class="img-fluid mb-2" style="max-height: 100px;">
@@ -62,4 +126,5 @@
 </div>
 
 {% endif %}
+</div>
 {% endblock %}

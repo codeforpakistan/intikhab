@@ -11,21 +11,58 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialize environment variables
+env = environ.Env(
+    # Set casting, default value
+    DEBUG=(bool, True),
+    SECRET_KEY=(str, 'django-insecure-w=tfvfl2c!o30i0r%1-%g(z3*4y+2eebd9k77#lt6n-$!f0yk('),
+    ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
+    LANGUAGE_CODE=(str, 'en-us'),
+    TIME_ZONE=(str, 'UTC'),
+    USE_I18N=(bool, True),
+    USE_TZ=(bool, True),
+    SITE_ID=(int, 1),
+    ACCOUNT_EMAIL_VERIFICATION=(str, 'none'),
+    ACCOUNT_EMAIL_REQUIRED=(bool, True),
+    ACCOUNT_UNIQUE_EMAIL=(bool, True),
+    ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION=(bool, True),
+    SOCIALACCOUNT_AUTO_SIGNUP=(bool, True),
+    SOCIALACCOUNT_LOGIN_ON_GET=(bool, False),
+    SOCIALACCOUNT_QUERY_EMAIL=(bool, True),
+    STATIC_URL=(str, 'static/'),
+    MEDIA_URL=(str, 'media/'),
+    LOGIN_REDIRECT_URL=(str, '/'),
+    LOGOUT_REDIRECT_URL=(str, '/'),
+    # Email settings
+    EMAIL_BACKEND=(str, 'django.core.mail.backends.console.EmailBackend'),
+    EMAIL_HOST=(str, 'smtp.sendgrid.net'),
+    EMAIL_PORT=(int, 587),
+    EMAIL_USE_TLS=(bool, True),
+    EMAIL_HOST_USER=(str, 'apikey'),
+    EMAIL_HOST_PASSWORD=(str, ''),
+    DEFAULT_FROM_EMAIL=(str, 'noreply@example.com'),
+    SENDGRID_API_KEY=(str, ''),
+)
+
+# Take environment variables from .env file
+environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w=tfvfl2c!o30i0r%1-%g(z3*4y+2eebd9k77#lt6n-$!f0yk('
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -37,7 +74,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'app',
+    'django.contrib.sites',
+    
+    # Django Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    
+    'app.apps.IntikhbAppConfig',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +93,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -75,10 +121,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db(),
 }
 
 
@@ -104,25 +147,25 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env('LANGUAGE_CODE')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env('TIME_ZONE')
 
-USE_I18N = True
+USE_I18N = env('USE_I18N')
 
-USE_TZ = True
+USE_TZ = env('USE_TZ')
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env('STATIC_URL')
 STATICFILES_DIRS = [
     BASE_DIR / "app" / "static",
 ]
 
 # Media files (user uploads)
-MEDIA_URL = 'media/'
+MEDIA_URL = env('MEDIA_URL')
 MEDIA_ROOT = BASE_DIR / 'uploads'
 
 # Default primary key field type
@@ -130,5 +173,56 @@ MEDIA_ROOT = BASE_DIR / 'uploads'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = env('LOGIN_REDIRECT_URL')
+LOGOUT_REDIRECT_URL = env('LOGOUT_REDIRECT_URL')
+
+# Email Configuration (SendGrid)
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+
+# SendGrid API Key (for additional SendGrid features if needed)
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+
+# Django Allauth Configuration
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = env('SITE_ID')
+
+# Allauth settings
+ACCOUNT_EMAIL_VERIFICATION = env('ACCOUNT_EMAIL_VERIFICATION')  # Set to 'mandatory' for production
+ACCOUNT_EMAIL_REQUIRED = env('ACCOUNT_EMAIL_REQUIRED')
+ACCOUNT_UNIQUE_EMAIL = env('ACCOUNT_UNIQUE_EMAIL')
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = env('ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION')
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+SOCIALACCOUNT_AUTO_SIGNUP = env('SOCIALACCOUNT_AUTO_SIGNUP')
+SOCIALACCOUNT_LOGIN_ON_GET = env('SOCIALACCOUNT_LOGIN_ON_GET')
+SOCIALACCOUNT_QUERY_EMAIL = env('SOCIALACCOUNT_QUERY_EMAIL')
+
+# Google OAuth settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+        'FETCH_USERINFO': True,
+        'APP': {
+            'client_id': env('GOOGLE_OAUTH2_CLIENT_ID'),
+            'secret': env('GOOGLE_OAUTH2_CLIENT_SECRET'),
+            'key': ''
+        }
+    }
+}

@@ -1,7 +1,8 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<div class="bg-success text-white py-5 mb-5">
+<!-- Hero Banner - Full Width Half Height -->
+<div class="bg-success text-white d-flex align-items-center mb-5" style="min-height: 50vh;">
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-8 col-md-10 mx-auto text-center">
@@ -29,8 +30,9 @@
   </div>
 </div>
 
+<!-- Active Elections Section -->
 {% if elections %}
-<div class="mb-5">
+<div class="container mb-5">
   <div class="text-center mb-4">
     <h2 class="h3 fw-bold">
       <i class="bi bi-card-checklist text-success me-2"></i>Active Elections
@@ -91,56 +93,62 @@
 </div>
 
 {% else %}
-<div class="text-center py-5">
-  <div class="mb-4">
-    <i class="bi bi-card-checklist text-muted" style="font-size: 4rem;"></i>
+<!-- No Elections Section -->
+<div class="container">
+  <div class="text-center py-5">
+    <div class="mb-4">
+      <i class="bi bi-card-checklist text-muted" style="font-size: 4rem;"></i>
+    </div>
+    <h3 class="fw-bold mb-3">No Elections Available</h3>
+    <p class="lead text-muted mb-4">There are currently no elections scheduled. Please check back later.</p>
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'profile' %}" class="btn btn-outline-primary">
+        <i class="bi bi-person me-2"></i>View Your Profile
+      </a>
+    {% endif %}
   </div>
-  <h3 class="fw-bold mb-3">No Elections Available</h3>
-  <p class="lead text-muted mb-4">There are currently no elections scheduled. Please check back later.</p>
-  {% if request.user.is_authenticated %}
-    <a href="{% url 'profile' %}" class="btn btn-outline-primary">
-      <i class="bi bi-person me-2"></i>View Your Profile
-    </a>
-  {% endif %}
 </div>
 {% endif %}
 
+<!-- Features Section -->
 <section id="features" class="py-5">
-  <div class="text-center mb-5">
-    <h2 class="display-5 fw-bold">Why Choose Intikhab?</h2>
-    <p class="lead text-muted">Built with modern technology for secure and transparent elections</p>
-  </div>
-  <div class="row g-4">
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body p-4">
-          <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
-            <i class="bi bi-shield-check fs-4"></i>
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold">Why Choose Intikhab?</h2>
+      <p class="lead text-muted">Built with modern technology for secure and transparent elections</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 text-center border-0">
+          <div class="card-body p-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+              <i class="bi bi-shield-check fs-4"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Secure & Private</h4>
+            <p class="text-muted">Advanced cryptographic methods ensure your vote remains private and secure using homomorphic encryption.</p>
           </div>
-          <h4 class="fw-bold mb-3">Secure & Private</h4>
-          <p class="text-muted">Advanced cryptographic methods ensure your vote remains private and secure using homomorphic encryption.</p>
         </div>
       </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body p-4">
-          <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
-            <i class="bi bi-eye fs-4"></i>
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 text-center border-0">
+          <div class="card-body p-4">
+            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+              <i class="bi bi-eye fs-4"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Transparent & Verifiable</h4>
+            <p class="text-muted">Election results are publicly verifiable while maintaining complete voter privacy and anonymity.</p>
           </div>
-          <h4 class="fw-bold mb-3">Transparent & Verifiable</h4>
-          <p class="text-muted">Election results are publicly verifiable while maintaining complete voter privacy and anonymity.</p>
         </div>
       </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body p-4">
-          <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
-            <i class="bi bi-check-circle fs-4"></i>
+      <div class="col-lg-4 col-md-6">
+        <div class="card h-100 text-center border-0">
+          <div class="card-body p-4">
+            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 4rem; height: 4rem;">
+              <i class="bi bi-check-circle fs-4"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Easy & Accessible</h4>
+            <p class="text-muted">User-friendly interface makes voting simple and accessible to everyone, anywhere, anytime.</p>
           </div>
-          <h4 class="fw-bold mb-3">Easy & Accessible</h4>
-          <p class="text-muted">User-friendly interface makes voting simple and accessible to everyone, anywhere, anytime.</p>
         </div>
       </div>
     </div>

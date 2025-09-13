@@ -1,11 +1,24 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <h1>Profile: {{ request.user.get_full_name|default:request.user.username }}</h1>
-    
-    <div class="card mb-4 border-0">
+<!-- Profile Header - Full Width -->
+<div class="bg-success text-white py-4 mb-5">
+  <div class="container">
+    <header>
+      <h1 class="mb-2">{{ request.user.get_full_name|default:request.user.username }}</h1>
+      <p class="lead mb-2">Your personal voting dashboard and election history</p>
+      <small class="text-white-50">
+        Member since {{ request.user.date_joined|date:"M d, Y" }}
+      </small>
+    </header>
+  </div>
+</div>
+
+<!-- Profile Content Section -->
+<div class="container pb-5">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4 border-0">
       <div class="card-header">
         <h5>User Information</h5>
       </div>
@@ -39,6 +52,7 @@
           <a href="{% url 'election_list' %}" class="btn btn-primary">Browse Elections</a>
         {% endif %}
       </div>
+    </div>
     </div>
   </div>
 </div>
