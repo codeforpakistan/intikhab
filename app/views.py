@@ -9,6 +9,8 @@ from collections import defaultdict
 from app.models import Election, Candidate, Vote
 from app.encryption import Encryption
 from app.email_utils import send_vote_confirmation
+from app.encryption import Encryption, Ciphertext
+import json
 
 # Create your views here.
 def index(request):
@@ -136,13 +138,47 @@ def close_election(request, pk):
     
     try:
         election = Election.objects.get(pk=pk)
-        if not election.active:
-            messages.warning(request, "Election is already closed.")
-        else:
-            election.active = False
-            election.save()
-            messages.success(request, f"Election '{election.name}' has been closed successfully.")
+        # Close the election logic would go here
+        election.active = False
+        election.save()
+        messages.success(request, f"Election '{election.name}' has been closed.")
         return redirect('election_detail', pk=pk)
     except Election.DoesNotExist:
         messages.error(request, "Election not found.")
         return redirect('election_list')
+
+class VerifyResultsView(View):
+    def get(self, request, election_id):
+        election = Election.objects.get(pk=election_id)
+        cleaned_key = election.public_key.replace("'", '"')
+        public_key = json.loads(cleaned_key)
+        encryption = Encryption(public_key=f"{public_key['g']},{public_key['n']}")
+        
+        # convert the decrypted total to negative vector
+        decrypted_total = json.loads(election.decrypted_total)
+        decrypted_negative_total = [-x for x in decrypted_total]
+        encrypted_negative_total = []
+        for i in decrypted_negative_total:
+            encrypted_negative_total.append(encryption.encrypt(plaintext=i, rand=1))
+        
+        encrypted_positive_total = json.loads(election.encrypted_positive_total)
+        encrypted_zero_sum = []
+        for i in range(len(encrypted_positive_total)):
+            temp_ept = Ciphertext.from_json(encrypted_positive_total[i])
+            encrypted_zero_sum.append(encryption.add(temp_ept, encrypted_negative_total[i]))
+        
+        zero_randomness = json.loads(election.zero_randomness)
+        recalculated_zero_sum = []
+        for i in range(len(zero_randomness)):
+            recalculated_zero_sum.append(encryption.encrypt(plaintext=0, rand=zero_randomness[i]))
+        
+        print(encrypted_zero_sum)
+        print(recalculated_zero_sum)
+        print(encrypted_zero_sum == recalculated_zero_sum)
+        for i in range(len(encrypted_zero_sum)):
+            if encrypted_zero_sum[i].ciphertext != recalculated_zero_sum[i].ciphertext:
+                verified = False
+                break
+        else:
+            verified = True
+        return render(request, 'app/elections/verify_results.html', {'election': election, 'verified': verified})

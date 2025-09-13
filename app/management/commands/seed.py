@@ -1,8 +1,10 @@
-from django.core.management.base import BaseCommand, CommandError
-from app.models import Election, Candidate, Party, Vote
+from django.core.management.base import BaseCommand
+from app.models import Election, Party
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
 from app.encryption import Encryption
+from datetime import datetime, timezone
+
 
 class Command(BaseCommand):
     help = "Sets up a dummy election and candidates"
@@ -10,8 +12,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            
-            
             # Create groups and assign permissions
             officials = Group.objects.create(name="Officials")
             content_types = ContentType.objects.filter(
@@ -69,6 +69,10 @@ class Command(BaseCommand):
             citizen.save()
             self.stdout.write(self.style.SUCCESS('User created: "%s"' % citizen.username))
 
+            encryption = Encryption()
+            public_key = encryption.paillier.keys['public_key']
+            private_key = encryption.paillier.keys['private_key']
+
         except:
             pass
 
@@ -76,10 +80,11 @@ class Command(BaseCommand):
         encryption = Encryption()
         election = Election.objects.create(
             name="Presidential Election",
-            start_date="2022-01-01 00:00:00",
-            end_date="2022-01-31 23:59:59",
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc),
             description="This is a dummy election",
-            public_key=f"{encryption.paillier.public_key['g']},{encryption.paillier.public_key['n']}",
+            public_key=public_key,
+            private_key=private_key,
             active=True,
         )
         self.stdout.write(self.style.SUCCESS("Successfully created dummy election"))

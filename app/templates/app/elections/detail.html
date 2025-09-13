@@ -104,6 +104,16 @@
   <strong>Voting Closed:</strong> Voting is not currently open for this election.
 </div>
 {% else %}
+  <div class="row">
+  {% for candidate in election.candidates.all %}
+    <div class="col-md-4">
+      <div class="card card-body">
+        <h2 class="text-center">{{ candidate.user.get_username }}</h2>
+        <p class="text-center"><img src="{{ candidate.symbol.url }}" width="170" height="170" alt="" class="img-fluid img-thumbnail"></p>
+        <p class="mb-0 text-center"><a class="btn btn-primary" href="{% url 'vote' election.id candidate.id %}">VOTE</a></p>
+      </div>
+    </div>
+  {% endfor %}
 
 <h3>Candidates</h3>
 <div class="row">
@@ -126,5 +136,14 @@
 </div>
 
 {% endif %}
-</div>
+{% if not election.active %}
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Election Results</h2>
+      <p>Decrypted Total: {{ election.decrypted_total }}</p>
+      <button class="btn btn-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#results">Verify Results</button>
+      <div id="results"></div>
+    </div>
+  </div>
+{% endif %}
 {% endblock %}

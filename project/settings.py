@@ -13,14 +13,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import environ
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Initialize environment variables
 env = environ.Env(
     # Set casting, default value
     DEBUG=(bool, True),
     SECRET_KEY=(str, 'django-insecure-w=tfvfl2c!o30i0r%1-%g(z3*4y+2eebd9k77#lt6n-$!f0yk('),
+    FIELD_ENCRYPTION_KEY=(str, ''),
+    ENCRYPTION_KEY_PATH=(str, ''),
     ALLOWED_HOSTS=(list, ['localhost', '127.0.0.1']),
     LANGUAGE_CODE=(str, 'en-us'),
     TIME_ZONE=(str, 'UTC'),
@@ -54,10 +52,13 @@ env = environ.Env(
     CSRF_COOKIE_SECURE=(bool, False),
     SECURE_BROWSER_XSS_FILTER=(bool, True),
     SECURE_CONTENT_TYPE_NOSNIFF=(bool, True),
+    # Google OAuth2
+    GOOGLE_OAUTH2_CLIENT_ID=(str, ''),
+    GOOGLE_OAUTH2_CLIENT_SECRET=(str, ''),
 )
 
-# Take environment variables from .env file
-environ.Env.read_env(BASE_DIR / '.env')
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -129,7 +130,10 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -150,6 +154,32 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['file'],
+        'level': 'DEBUG',
+    },
+}
 
 
 # Internationalization
@@ -252,3 +282,7 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+# Encryption settings
+ENCRYPTION_KEY_PATH = env('ENCRYPTION_KEY_PATH')
+FIELD_ENCRYPTION_KEY = env('FIELD_ENCRYPTION_KEY')

@@ -3,7 +3,7 @@ name = "intikhab"
 version = "0.1.0"
 description = "Electronic Voting System for Pakistan - Secure, Transparent, Democratic"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "cryptography>=45.0.7",
     "django>=5.2.6",
