@@ -1,8 +1,19 @@
 {% extends 'app/layouts/page.html' %}
 
 {% block content %}
-<h1>Elections</h1>
-{% for election in elections %}
-<p><a href="{% url 'election_detail' election.id %}">{{ election.name }}</a></p>
-{% endfor %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Elections</h1>
+</div>
+
+{% if elections %}
+<div class="row">
+  {% for election in elections %}
+    {% include 'app/partials/election_card.html' %}
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+  <strong>No Elections:</strong> There are currently no elections available.
+</div>
+{% endif %}
 {% endblock %}
