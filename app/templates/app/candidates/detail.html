@@ -1,4 +1,5 @@
 {% extends 'app/layouts/page.html' %}
+{% load static %}
 
 {% block content %}
 <!-- Page Header -->
@@ -17,55 +18,65 @@
     <!-- Main Content -->
     <div class="col-md-9">
       <div class="card border-0">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-4 text-center">
-              {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=150 css_classes="mb-3" %}
-            </div>
-            <div class="col-md-8">
-              <h2 class="mb-3">{{ candidate.user.get_full_name }}</h2>
+        <div class="row g-0">
+          <div class="col-md-4">
+            {% if candidate.user.profile and candidate.user.profile.avatar %}
+              <img src="{{ candidate.user.profile.avatar.url }}" 
+                   alt="{{ candidate.user.get_full_name }}" 
+                   class="img-fluid rounded-start h-100" 
+                   style="object-fit: cover; min-height: 300px;"
+                   onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
+            {% elif candidate.symbol %}
+              <img src="{{ candidate.symbol.url }}" 
+                   alt="{{ candidate.user.get_full_name }}" 
+                   class="img-fluid rounded-start h-100" 
+                   style="object-fit: cover; min-height: 300px;"
+                   onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
+            {% else %}
+              <img src="{% static 'app/images/default-avatar.svg' %}" 
+                   alt="{{ candidate.user.get_full_name }}" 
+                   class="img-fluid rounded-start h-100" 
+                   style="object-fit: cover; min-height: 300px;">
+            {% endif %}
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h2 class="card-title">{{ candidate.user.get_full_name }}</h2>
               
               <!-- Personal Information -->
               {% if candidate.user.profile %}
-                <div class="row mb-3">
-                  {% if candidate.user.profile.get_age %}
-                    <div class="col-sm-6">
-                      <strong>Age:</strong> {{ candidate.user.profile.get_age }} years old
-                    </div>
-                  {% endif %}
-                  {% if candidate.user.profile.gender %}
-                    <div class="col-sm-6">
-                      <strong>Gender:</strong> {{ candidate.user.profile.get_gender_display }}
-                    </div>
-                  {% endif %}
-                </div>
+                {% if candidate.user.profile.gender %}
+                  <p class="card-text">
+                    <strong>Gender:</strong> {{ candidate.user.profile.get_gender_display }}
+                  </p>
+                {% endif %}
                 
                 {% if candidate.user.profile.location %}
-                  <div class="mb-3">
+                  <p class="card-text">
                     <strong>Location:</strong> <i class="bi bi-geo-alt me-1"></i>{{ candidate.user.profile.location }}
-                  </div>
+                  </p>
                 {% endif %}
               {% endif %}
               
               {% if candidate.party %}
-                <div class="mb-3">
+                <p class="card-text">
                   <strong>Party:</strong> {{ candidate.party.name }}
-                </div>
+                </p>
               {% else %}
-                <div class="mb-3">
+                <p class="card-text">
                   <span class="badge bg-secondary">Independent</span>
-                </div>
+                </p>
               {% endif %}
               
-              <div class="mb-3">
+              <p class="card-text">
                 <strong>Election:</strong> 
                 <a href="{% url 'election_detail' uuid=election.uuid %}" class="text-decoration-none">{{ election.name }}</a>
-              </div>
+              </p>
               
               {% if candidate.user.email %}
-                <div class="mb-3">
+                <p class="card-text">
                   <strong>Email:</strong> {{ candidate.user.email }}
-                </div>
+                </p>
               {% endif %}
             </div>
           </div>

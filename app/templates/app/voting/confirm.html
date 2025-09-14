@@ -38,7 +38,7 @@
             <!-- Candidate Information -->
             <div class="row mb-4">
               <div class="col-md-4 text-center">
-                {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=120 css_classes="mb-3" %}
+                {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=120 shape="square" css_classes="mb-3" %}
               </div>
               <div class="col-md-8">
                 <h3 class="mb-3">{{ candidate.user.get_full_name }}</h3>

@@ -15,17 +15,39 @@
   </div>
   <div class="card-body">
     <!-- Featured Candidates -->
+    {% load static %}
     <div class="row g-3">
-      {% for candidate in election.candidates.all|slice:":2" %}
-        <div class="col-6">
-          <div class="text-center">
-            {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=50 css_classes="mb-2" %}
-            <div class="text-truncate">{{ candidate.user.get_full_name }}</div>
-            {% if candidate.party %}
-              <div class="small text-muted text-truncate">{{ candidate.party.name }}</div>
+      {% for candidate in election.candidates.all|slice:":3" %}
+        <div class="col-4">
+          <div class="card border-0 text-bg-dark" style="height: 120px;">
+            {% if candidate.user.profile and candidate.user.profile.avatar %}
+              <img src="{{ candidate.user.profile.avatar.url }}" 
+                   class="card-img" 
+                   alt="{{ candidate.user.get_full_name }}"
+                   style="height: 120px; object-fit: cover;"
+                   onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
+            {% elif candidate.symbol %}
+              <img src="{{ candidate.symbol.url }}" 
+                   class="card-img" 
+                   alt="{{ candidate.user.get_full_name }}"
+                   style="height: 120px; object-fit: cover;"
+                   onerror="this.src='{% static 'app/images/default-avatar.svg' %}'">
             {% else %}
-              <div class="small text-muted">Independent</div>
+              <div class="card-img" 
+                   style="height: 120px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+              </div>
             {% endif %}
+            
+            <div class="card-img-overlay d-flex align-items-end p-0">
+              <div class="w-100 p-2 rounded-bottom" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 100%);">
+                <h6 class="card-title text-white mb-0 text-truncate">{{ candidate.user.get_full_name }}</h6>
+                {% if candidate.party %}
+                  <small class="text-white text-truncate d-block">{{ candidate.party.name }}</small>
+                {% else %}
+                  <small class="text-white">Independent</small>
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
       {% empty %}

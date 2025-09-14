@@ -6,10 +6,69 @@ from app.encryption import Encryption
 from datetime import datetime, timezone, timedelta
 import random
 from faker import Faker
+import requests
+import os
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+import time
 
 
 class Command(BaseCommand):
     help = "Sets up comprehensive demo data with multiple elections, candidates, and users using realistic fake data"
+
+    def fetch_random_face(self, gender=None, age_group=None, max_retries=2):
+        """
+        Fetch a random face from multiple sources with fallbacks
+        
+        Args:
+            gender: 'male', 'female', or None for random
+            age_group: 'young-adult', 'adult', 'elderly', or None for random
+            max_retries: Maximum number of retry attempts
+            
+        Returns:
+            ContentFile with image data or None if failed
+        """
+        # List of API endpoints to try (with fallbacks)
+        endpoints = [
+            # Fallback 1: Picsum with people photos (300x300) - more reliable
+            "https://picsum.photos/300/300",
+            # Fallback 2: Random user avatar generator
+            "https://api.dicebear.com/7.x/avataaars/png",
+            # Fallback 3: UI Avatars (generates initials-based avatars)
+            f"https://ui-avatars.com/api/?size=300&background=random&name={'User'+str(random.randint(1,999))}",
+        ]
+        
+        for endpoint_idx, endpoint in enumerate(endpoints):
+            try:
+                # Add cache busting parameter
+                params = {'seed': random.randint(1, 100000)}
+                
+                # Make request with shorter timeout and proper headers
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+                response = requests.get(endpoint, params=params, headers=headers, timeout=8)
+                response.raise_for_status()
+                
+                # Check if we got an image and it's not too small
+                content_type = response.headers.get('content-type', '')
+                if content_type.startswith('image/') and len(response.content) > 500:
+                    # Generate unique filename
+                    timestamp = int(time.time() * 1000)
+                    filename = f"candidate_face_{timestamp}_{random.randint(1000, 9999)}.jpg"
+                    
+                    # Return ContentFile
+                    return ContentFile(response.content, name=filename)
+                    
+            except (requests.exceptions.RequestException, KeyboardInterrupt) as e:
+                # For keyboard interrupt, re-raise to allow user to stop
+                if isinstance(e, KeyboardInterrupt):
+                    raise
+                # For network errors, just continue to next endpoint
+                continue
+                
+        # If all endpoints fail, return None silently
+        return None
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -173,13 +232,38 @@ class Command(BaseCommand):
                 candidate_users.append(candidate)
                 
                 # Create profile for each candidate
-                Profile.objects.create(
+                gender_choice = random.choice(['M', 'F', 'O'])
+                profile = Profile.objects.create(
                     user=candidate,
                     profile=fake.text(max_nb_chars=300),
                     manifesto=fake.text(max_nb_chars=500),
                     location=f"{fake.city()}, {fake.state_abbr()}",
-                    gender=random.choice(['M', 'F', 'O'])
+                    gender=gender_choice
                 )
+                
+                # Fetch and assign a realistic face based on gender (optional, non-blocking)
+                try:
+                    # Map profile gender to API gender
+                    api_gender = None
+                    if gender_choice == 'M':
+                        api_gender = 'male'
+                    elif gender_choice == 'F':
+                        api_gender = 'female'
+                    # For 'O' (Other), we'll use random (None)
+                    
+                    face_image = self.fetch_random_face(gender=api_gender)
+                    if face_image:
+                        profile.avatar.save(face_image.name, face_image, save=True)
+                        self.stdout.write(f"   ✅ Assigned face to {candidate.get_full_name()}")
+                    else:
+                        self.stdout.write(f"   ⚠️  No face assigned to {candidate.get_full_name()}")
+                        
+                except KeyboardInterrupt:
+                    # Re-raise keyboard interrupt so user can stop the process
+                    raise
+                except Exception as e:
+                    self.stdout.write(f"   ❌ Error assigning face to {candidate.get_full_name()}: {str(e)[:100]}")
+                    # Continue without face - it's not critical
             
             # Create regular citizens (15-25 users)
             citizens = []
