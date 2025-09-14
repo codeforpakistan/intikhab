@@ -1,7 +1,7 @@
 # Import all views to make them available at package level
 from .election import ElectionListView, ElectionDetailView, ElectionCreateView, ElectionUpdateView
 from .candidate import CandidateCreateView, CandidateUpdateView, CandidateDeleteView, CandidateDetailView
-from .vote import VoteView, VerifyResultsView, CloseElectionView
+from .vote import VoteView, VerifyResultsView, CloseElectionView, StartElectionView
 from .invitation import (
     send_invitations, manage_invitations, invitation_accept, 
     resend_invitation, cancel_invitation, process_pending_invitation
@@ -16,7 +16,7 @@ __all__ = [
     # Candidate views  
     'CandidateCreateView', 'CandidateUpdateView', 'CandidateDeleteView', 'CandidateDetailView',
     # Vote views
-    'VoteView', 'VerifyResultsView', 'CloseElectionView',
+    'VoteView', 'VerifyResultsView', 'CloseElectionView', 'StartElectionView',
     # Invitation views
     'send_invitations', 'manage_invitations', 'invitation_accept', 
     'resend_invitation', 'cancel_invitation', 'process_pending_invitation',

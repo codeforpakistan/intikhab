@@ -25,6 +25,15 @@ class CandidateCreateView(LoginRequiredMixin, CreateView):
         
         # Get the election for this candidate
         self.election = get_object_or_404(Election, pk=kwargs['election_pk'])
+        
+        # Check if election can be edited (not active during voting or closed)
+        if not self.election.is_editable():
+            if self.election.closed_at:
+                messages.error(request, "Cannot add candidates to a closed election.")
+            else:
+                messages.error(request, "Cannot add candidates during active voting period.")
+            return redirect('election_detail', pk=self.election.pk)
+        
         return super().dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
@@ -89,6 +98,16 @@ class CandidateUpdateView(LoginRequiredMixin, UpdateView):
         if not self._is_official(request.user):
             messages.error(request, "You don't have permission to edit candidates.")
             return redirect('election_detail', pk=self.election.pk)
+        
+        # Check if election can be edited (not active during voting or closed)
+        if not self.election.is_editable():
+            candidate = self.get_object()
+            if self.election.closed_at:
+                messages.error(request, "Cannot edit candidates in a closed election.")
+            else:
+                messages.error(request, "Cannot edit candidates during active voting period.")
+            return redirect('candidate_detail', election_pk=self.election.pk, pk=candidate.pk)
+        
         return super().dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
@@ -128,10 +147,13 @@ class CandidateDeleteView(LoginRequiredMixin, DeleteView):
             messages.error(request, "You don't have permission to remove candidates from this election.")
             return redirect('election_detail', pk=self.election.pk)
         
-        # Check if election has started (cannot remove candidates after voting starts)
+        # Check if election can be edited (not active during voting or closed)
         if not self.election.is_editable():
-            messages.error(request, "Cannot remove candidates after the election has started.")
             candidate = self.get_object()
+            if self.election.closed_at:
+                messages.error(request, "Cannot remove candidates from a closed election.")
+            else:
+                messages.error(request, "Cannot remove candidates during active voting period.")
             return redirect('candidate_detail', election_pk=self.election.pk, pk=candidate.pk)
         
         return super().dispatch(request, *args, **kwargs)

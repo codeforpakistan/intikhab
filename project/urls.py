@@ -38,7 +38,7 @@ from app.views import (
     # Candidate views
     CandidateCreateView, CandidateUpdateView, CandidateDeleteView, CandidateDetailView,
     # Vote views
-    VoteView, CloseElectionView, VerifyResultsView,
+    VoteView, CloseElectionView, StartElectionView, VerifyResultsView,
     # Invitation views
     send_invitations, manage_invitations, invitation_accept, 
     resend_invitation, cancel_invitation, process_pending_invitation,
@@ -67,6 +67,7 @@ urlpatterns = [
     path('elections/<int:pk>', ElectionDetailView.as_view(), name='election_detail'),
     path('elections/<int:pk>/edit', ElectionUpdateView.as_view(), name='edit_election'),
     path('elections/<int:pk>/close', CloseElectionView.as_view(), name='close_election'),
+    path('elections/<int:pk>/start', StartElectionView.as_view(), name='start_election'),
     
     # Candidate management
     path('elections/<int:election_pk>/candidates/create', CandidateCreateView.as_view(), name='add_candidate'),

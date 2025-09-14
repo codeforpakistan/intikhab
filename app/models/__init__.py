@@ -5,6 +5,7 @@ from .party import Party
 from .candidate import Candidate
 from .vote import Vote
 from .profile import Profile
+from .invitation import Invitation
 # Import user extensions to add methods to User model (imported for side effects)
 from . import user_extensions  # noqa: F401
 
@@ -18,5 +19,6 @@ __all__ = [
     'Party', 
     'Candidate',
     'Vote',
-    'Profile'
+    'Profile',
+    'Invitation'
 ]

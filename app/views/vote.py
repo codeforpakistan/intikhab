@@ -1,7 +1,6 @@
 """
 Class-based views for voting and result operations
 """
-import uuid
 import json
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,6 +30,14 @@ class VoteView(LoginRequiredMixin, View):
             # Check if voting is allowed
             if not election.is_voting_open():
                 messages.error(request, "Voting is not currently open for this election.")
+                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+            
+            # Check if user is authorized to vote
+            if not election.can_user_vote(request.user):
+                if election.is_public:
+                    messages.error(request, "You are not authorized to vote in this election.")
+                else:
+                    messages.error(request, "This is a private election. You need an invitation to vote.")
                 return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
             
             # Check if user already voted
@@ -63,17 +70,13 @@ class VoteView(LoginRequiredMixin, View):
             if not self._can_vote(request.user, election, candidate):
                 return redirect('election_detail', pk=election.pk)
             
-            # Create encrypted ballot
-            ballot_data = self._create_ballot(candidate)
-            
-            # Create and save the vote
+            # Create the vote with proper encryption
             vote = Vote(
                 user=request.user, 
-                election=election, 
-                ballot=ballot_data
+                election=election
             )
             vote._candidate = candidate  # Temporary attribute for encryption
-            vote.save()
+            vote.save()  # This will trigger the encryption in the model
             
             # Send confirmation email
             if request.user.email:
@@ -96,6 +99,14 @@ class VoteView(LoginRequiredMixin, View):
             messages.error(user, "Voting is not currently open for this election.")
             return False
         
+        # Check if user is authorized to vote (public election or invited to private election)
+        if not election.can_user_vote(user):
+            if election.is_public:
+                messages.error(user, "You are not authorized to vote in this election.")
+            else:
+                messages.error(user, "This is a private election. You need an invitation to vote.")
+            return False
+        
         # Check if user already voted
         if Vote.objects.filter(user=user, election=election).exists():
             messages.error(user, "You have already voted in this election.")
@@ -107,11 +118,6 @@ class VoteView(LoginRequiredMixin, View):
             return False
         
         return True
-    
-    def _create_ballot(self, candidate):
-        """Create ballot data for the vote"""
-        # Simple format for now: candidate_id + random UUID
-        return f"{candidate.id}:{uuid.uuid4().hex}"
 
 
 class CloseElectionView(LoginRequiredMixin, View):
@@ -125,10 +131,60 @@ class CloseElectionView(LoginRequiredMixin, View):
         
         try:
             election = get_object_or_404(Election, pk=pk)
-            election.active = False
-            election.save()
             
-            messages.success(request, f"Election '{election.name}' has been closed.")
+            # Check if election can be closed using the model method
+            if not election.can_be_closed():
+                if not election.active:
+                    messages.warning(request, f"Election '{election.name}' is not currently active.")
+                elif election.closed_at:
+                    messages.error(request, f"Election '{election.name}' has already been closed.")
+                else:
+                    messages.error(request, f"Election '{election.name}' cannot be closed at this time.")
+                return redirect('election_detail', pk=pk)
+            
+            # Close the election using the model method
+            if election.close_election():
+                election.save()
+                messages.success(request, f"Election '{election.name}' has been closed successfully.")
+            else:
+                messages.error(request, f"Failed to close election '{election.name}'.")
+            
+            return redirect('election_detail', pk=pk)
+            
+        except Election.DoesNotExist:
+            messages.error(request, "Election not found.")
+            return redirect('election_list')
+
+
+class StartElectionView(LoginRequiredMixin, View):
+    """Start/activate an election (only for officials)"""
+    
+    def post(self, request, pk):
+        """Start the specified election"""
+        if not request.user.can_close_elections():  # Using same permission for start/close
+            messages.error(request, "You don't have permission to start elections.")
+            return redirect('election_detail', pk=pk)
+        
+        try:
+            election = get_object_or_404(Election, pk=pk)
+            
+            # Check if election can be started using the model method
+            if not election.can_be_started():
+                if election.active:
+                    messages.warning(request, f"Election '{election.name}' is already active.")
+                elif election.started_at:
+                    messages.error(request, f"Election '{election.name}' has already been started before and cannot be restarted.")
+                else:
+                    messages.error(request, f"Election '{election.name}' cannot be started at this time.")
+                return redirect('election_detail', pk=pk)
+            
+            # Start the election using the model method
+            if election.start_election():
+                election.save()
+                messages.success(request, f"Election '{election.name}' has been started successfully!")
+            else:
+                messages.error(request, f"Failed to start election '{election.name}'.")
+            
             return redirect('election_detail', pk=pk)
             
         except Election.DoesNotExist:

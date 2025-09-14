@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from app.models import Election, Party, Candidate, Profile
+from app.models import Election, Party, Candidate, Profile, Vote, Invitation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User, Group, Permission
 from app.encryption import Encryption
@@ -11,24 +11,87 @@ from faker import Faker
 class Command(BaseCommand):
     help = "Sets up comprehensive demo data with multiple elections, candidates, and users using realistic fake data"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--clear',
+            action='store_true',
+            help='Clear all existing data from the database before seeding',
+        )
+
+    def clear_all_data(self):
+        """Clear all data from the database in the correct order to handle foreign key constraints"""
+        self.stdout.write(self.style.WARNING("🗑️  Clearing all existing data..."))
+        
+        try:
+            # Clear in reverse dependency order to avoid foreign key constraint violations
+            self.stdout.write("   - Clearing votes...")
+            Vote.objects.all().delete()
+            
+            self.stdout.write("   - Clearing invitations...")
+            Invitation.objects.all().delete()
+            
+            self.stdout.write("   - Clearing candidates...")
+            Candidate.objects.all().delete()
+            
+            self.stdout.write("   - Clearing profiles...")
+            Profile.objects.all().delete()
+            
+            self.stdout.write("   - Clearing elections...")
+            Election.objects.all().delete()
+            
+            self.stdout.write("   - Clearing parties...")
+            Party.objects.all().delete()
+            
+            self.stdout.write("   - Clearing non-superuser users...")
+            User.objects.filter(is_superuser=False).delete()
+            
+            self.stdout.write("   - Clearing groups...")
+            Group.objects.all().delete()
+            
+            self.stdout.write(self.style.SUCCESS("✅ All data cleared successfully"))
+            
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"❌ Error clearing data: {e}"))
+            raise
+
+    def _choose_candidate_with_preference(self, candidates):
+        """Choose a candidate with some realistic voting preferences"""
+        if not candidates:
+            return None
+        
+        # Create weights based on party affiliation and randomness
+        weights = []
+        for candidate in candidates:
+            weight = 1.0  # Base weight
+            
+            # Popular parties get slight boost
+            if candidate.party:
+                popular_parties = ["Progressive Alliance", "Conservative Coalition", "Liberal Democrats"]
+                if candidate.party.name in popular_parties:
+                    weight *= 1.5
+                    
+            # Add some randomness
+            weight *= random.uniform(0.5, 2.0)
+            weights.append(weight)
+        
+        # Choose candidate based on weights
+        return random.choices(candidates, weights=weights, k=1)[0]
+
     def handle(self, *args, **options):
         fake = Faker()
         
-        self.stdout.write(self.style.WARNING("Clearing existing data..."))
-        # Clear existing data in proper order to handle foreign key constraints
-        Candidate.objects.all().delete()
-        Profile.objects.all().delete()
-        Election.objects.all().delete()
-        Party.objects.all().delete()
-        User.objects.filter(is_superuser=False).delete()
-        Group.objects.all().delete()
+        if options['clear']:
+            self.clear_all_data()
+        else:
+            self.stdout.write(self.style.WARNING("Use --clear flag to clear existing data before seeding"))
+            self.stdout.write(self.style.WARNING("Proceeding without clearing existing data..."))
 
         try:
             # Create groups and assign permissions
             self.stdout.write(self.style.SUCCESS("Creating user groups..."))
-            officials_group = Group.objects.create(name="Officials")
-            candidates_group = Group.objects.create(name="Candidates")
-            citizens_group = Group.objects.create(name="Citizens")
+            officials_group, _ = Group.objects.get_or_create(name="Officials")
+            candidates_group, _ = Group.objects.get_or_create(name="Candidates")
+            citizens_group, _ = Group.objects.get_or_create(name="Citizens")
             
             # Assign permissions to groups
             content_types = ContentType.objects.filter(app_label="app")
@@ -192,8 +255,8 @@ class Command(BaseCommand):
             for template in election_templates:
                 # Generate encryption keys for each election
                 encryption = Encryption()
-                public_key = encryption.paillier.keys['public_key']
-                private_key = encryption.paillier.keys['private_key']
+                public_key = str(encryption.paillier.keys['public_key'])
+                private_key = str(encryption.paillier.keys['private_key'])
                 
                 # Set dates based on election type
                 if template["type"] == "completed":
@@ -241,6 +304,53 @@ class Command(BaseCommand):
             
             self.stdout.write(self.style.SUCCESS(f"✅ Created {len(elections)} elections with candidates"))
             
+            # Cast votes for completed and ongoing elections
+            self.stdout.write(self.style.SUCCESS("Casting votes for completed and ongoing elections..."))
+            total_votes_cast = 0
+            
+            # Get all voters (citizens, officials, and some candidates who aren't running in specific elections)
+            all_voters = list(citizens) + list(officials)
+            
+            for election in elections:
+                # Only cast votes for completed and ongoing elections
+                if election.end_date < now or (election.start_date <= now <= election.end_date):
+                    candidates_in_election = list(election.candidates.all())
+                    
+                    if not candidates_in_election:
+                        continue
+                    
+                    # Add non-candidate users to voters for this election
+                    candidate_users_in_election = [c.user for c in candidates_in_election]
+                    available_voters = [v for v in all_voters if v not in candidate_users_in_election]
+                    
+                    # Cast votes for 30-80% of available voters
+                    num_voters = random.randint(
+                        int(len(available_voters) * 0.3), 
+                        min(len(available_voters), int(len(available_voters) * 0.8))
+                    )
+                    
+                    selected_voters = random.sample(available_voters, num_voters)
+                    
+                    for voter in selected_voters:
+                        # Each voter picks a candidate (with some preference for popular parties)
+                        candidate = self._choose_candidate_with_preference(candidates_in_election)
+                        
+                        try:
+                            # Create the vote using proper encryption
+                            vote = Vote(
+                                user=voter,
+                                election=election
+                            )
+                            vote._candidate = candidate  # Temporary attribute for encryption
+                            vote.save()
+                            total_votes_cast += 1
+                            
+                        except Exception as e:
+                            # Skip if vote already exists or other error
+                            continue
+            
+            self.stdout.write(self.style.SUCCESS(f"✅ Cast {total_votes_cast} votes across elections"))
+            
             # Summary
             completed_elections = len([e for e in elections if e.end_date < now])
             ongoing_elections = len([e for e in elections if e.start_date <= now <= e.end_date])
@@ -260,6 +370,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"   - Ongoing: {ongoing_elections}"))
             self.stdout.write(self.style.SUCCESS(f"   - Upcoming: {upcoming_elections}"))
             self.stdout.write(self.style.SUCCESS(f"🏃 Candidates: {Candidate.objects.count()} total"))
+            self.stdout.write(self.style.SUCCESS(f"🗳️  Votes Cast: {Vote.objects.count()} total"))
             self.stdout.write(self.style.SUCCESS("=" * 50))
             self.stdout.write(self.style.SUCCESS("Login credentials:"))
             self.stdout.write(self.style.SUCCESS("  Admin: admin / admin123"))

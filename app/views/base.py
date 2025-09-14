@@ -3,7 +3,7 @@ Base views for general functionality like homepage and profile
 """
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from app.models import Election, Vote
+from app.models import Election, Vote, Invitation
 
 def index(request):
     """Homepage view showing election summary and ongoing elections"""
@@ -50,7 +50,7 @@ def index(request):
 
 @login_required
 def profile(request):
-    """User profile view showing their voting history and created elections"""
+    """User profile view showing their voting history, created elections, and invitations"""
     votes = Vote.objects.filter(user=request.user).select_related('election')
     
     # Get elections created by this user (if they're an official)
@@ -61,9 +61,29 @@ def profile(request):
         # Use the model's is_editable method
         election.can_edit = election.is_editable()
     
+    # Get invitations for this user
+    invitations = Invitation.objects.filter(
+        invited_email=request.user.email
+    ).select_related('election').order_by('-created_at')
+    
+    # Categorize invitations by status
+    pending_invitations = invitations.filter(status='pending')
+    accepted_invitations = invitations.filter(status='accepted')
+    declined_invitations = invitations.filter(status='declined')
+    
     return render(request, 'app/profile.html', {
         'votes': votes,
-        'created_elections': created_elections
+        'created_elections': created_elections,
+        'invitations': invitations,
+        'pending_invitations': pending_invitations,
+        'accepted_invitations': accepted_invitations,
+        'declined_invitations': declined_invitations,
+        'invitation_counts': {
+            'total': invitations.count(),
+            'pending': pending_invitations.count(),
+            'accepted': accepted_invitations.count(),
+            'declined': declined_invitations.count(),
+        }
     })
 
 # Legal pages

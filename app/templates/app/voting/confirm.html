@@ -38,15 +38,7 @@
             <!-- Candidate Information -->
             <div class="row mb-4">
               <div class="col-md-4 text-center">
-                {% if candidate.user.profile and candidate.user.profile.avatar %}
-                  <img src="{{ candidate.user.profile.avatar.url }}" alt="{{ candidate.user.get_full_name }}" class="img-fluid mb-3 rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                {% elif candidate.symbol %}
-                  <img src="{{ candidate.symbol.url }}" alt="{{ candidate.user.get_full_name }}" class="img-fluid mb-3 rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
-                {% else %}
-                  <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 120px; height: 120px;">
-                    <i class="bi bi-person-fill text-muted" style="font-size: 3rem;"></i>
-                  </div>
-                {% endif %}
+                {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=120 css_classes="mb-3" %}
               </div>
               <div class="col-md-8">
                 <h3 class="mb-3">{{ candidate.user.get_full_name }}</h3>

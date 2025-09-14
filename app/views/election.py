@@ -154,9 +154,11 @@ class ElectionDetailView(DetailView):
             user_votes = Vote.objects.filter(election=election, user=self.request.user)
             context['voted'] = user_votes.count()
             context['can_edit'] = self._can_edit_election(election, self.request.user)
+            context['can_user_vote'] = election.can_user_vote(self.request.user)
         else:
             context['voted'] = 0
             context['can_edit'] = False
+            context['can_user_vote'] = False
         
         # Get vote results if election is closed
         context['vote_results'] = self._count_votes(election)
@@ -173,48 +175,8 @@ class ElectionDetailView(DetailView):
         return has_permission and election.is_editable()
     
     def _count_votes(self, election):
-        """Count votes for each candidate in an election"""
-        if not election.can_show_results():
-            return None  # Don't show results unless election is closed after voting
-        
-        votes = Vote.objects.filter(election=election)
-        vote_counts = defaultdict(int)
-        
-        # Parse ballot data to count votes
-        for vote in votes:
-            try:
-                # Extract candidate_id from ballot format: "candidate_id:uuid"
-                if isinstance(vote.ballot, list):
-                    # Handle encrypted ballot list
-                    continue
-                candidate_id_str = vote.ballot.split(':')[0]
-                candidate_id = int(candidate_id_str)
-                vote_counts[candidate_id] += 1
-            except (ValueError, IndexError, AttributeError):
-                # Skip invalid ballot data
-                continue
-        
-        # Create results with candidate details
-        results = []
-        candidates = election.candidates.all()
-        total_votes = sum(vote_counts.values())
-        
-        for candidate in candidates:
-            candidate_votes = vote_counts.get(candidate.id, 0)
-            percentage = (candidate_votes / total_votes * 100) if total_votes > 0 else 0
-            results.append({
-                'candidate': candidate,
-                'votes': candidate_votes,
-                'percentage': round(percentage, 1)
-            })
-        
-        # Sort by vote count (descending)
-        results.sort(key=lambda x: x['votes'], reverse=True)
-        
-        return {
-            'results': results,
-            'total_votes': total_votes
-        }
+        """Get vote results using the election's built-in method"""
+        return election.get_results()
 
 
 class ElectionCreateView(LoginRequiredMixin, CreateView):

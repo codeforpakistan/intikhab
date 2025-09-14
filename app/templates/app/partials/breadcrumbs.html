@@ -32,6 +32,12 @@
             </li>
             {% if 'edit' in request.path %}
               <li class="breadcrumb-item active" aria-current="page">Edit</li>
+            {% elif 'invitation' in request.path %}
+              {% if 'send' in request.path %}
+                <li class="breadcrumb-item active" aria-current="page">Send Invitations</li>
+              {% else %}
+                <li class="breadcrumb-item active" aria-current="page">Manage Invitations</li>
+              {% endif %}
             {% endif %}
           {% elif 'list' in request.path or request.path == '/elections/' %}
             <li class="breadcrumb-item active" aria-current="page">All Elections</li>

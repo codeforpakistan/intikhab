@@ -1,12 +1,14 @@
 from django import forms
 from django.contrib.auth.models import User
-from app.models import Election, Candidate, Party
+from app.models import Election, Candidate, Party, Invitation
 from django.core.exceptions import ValidationError
+from datetime import timedelta
+from django.utils import timezone
 
 class ElectionForm(forms.ModelForm):
     class Meta:
         model = Election
-        fields = ['name', 'description', 'start_date', 'end_date']
+        fields = ['name', 'description', 'start_date', 'end_date', 'is_public']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -17,12 +19,19 @@ class ElectionForm(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Enter election description'
             }),
+            'is_public': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
         }
         labels = {
             'name': 'Election Name',
             'description': 'Description',
             'start_date': 'Start Date & Time',
             'end_date': 'End Date & Time',
+            'is_public': 'Public Election',
+        }
+        help_texts = {
+            'is_public': 'Check this to allow any registered user to vote. Uncheck for private elections (invitation only).',
         }
 
     # Add custom field definitions to handle datetime-local format
@@ -74,20 +83,13 @@ class ElectionForm(forms.ModelForm):
         if start_date and end_date:
             if start_date >= end_date:
                 raise ValidationError("End date must be after start date.")
-            
-            # Allow elections to start within the next hour (more flexible)
-            from django.utils import timezone
-            from datetime import timedelta
-            min_start_time = timezone.now() + timedelta(minutes=30)
-            if start_date < min_start_time:
-                raise ValidationError("Start date must be at least 30 minutes in the future to allow for setup.")
 
 
 class ElectionUpdateForm(forms.ModelForm):
     """Form for updating elections - includes active field"""
     class Meta:
         model = Election
-        fields = ['name', 'description', 'start_date', 'end_date', 'active']
+        fields = ['name', 'description', 'start_date', 'end_date', 'is_public', 'active']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -98,6 +100,9 @@ class ElectionUpdateForm(forms.ModelForm):
                 'rows': 4,
                 'placeholder': 'Enter election description'
             }),
+            'is_public': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
             'active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
@@ -107,9 +112,11 @@ class ElectionUpdateForm(forms.ModelForm):
             'description': 'Description',
             'start_date': 'Start Date & Time',
             'end_date': 'End Date & Time',
+            'is_public': 'Public Election',
             'active': 'Activate Election',
         }
         help_texts = {
+            'is_public': 'Check this to allow any registered user to vote. Uncheck for private elections (invitation only).',
             'active': 'Check this box to make the election visible to voters immediately. Uncheck to keep it as a draft.',
         }
 
@@ -142,13 +149,6 @@ class ElectionUpdateForm(forms.ModelForm):
         if start_date and end_date:
             if start_date >= end_date:
                 raise ValidationError("End date must be after start date.")
-            
-            # Allow elections to start within the next hour (more flexible)
-            from django.utils import timezone
-            from datetime import timedelta
-            min_start_time = timezone.now() + timedelta(minutes=30)
-            if start_date < min_start_time:
-                raise ValidationError("Start date must be at least 30 minutes in the future to allow for setup.")
 
 
 class CandidateFormSet(forms.BaseFormSet):
@@ -239,3 +239,131 @@ class CandidateForm(forms.ModelForm):
                 raise ValidationError(f"{user.get_full_name()} is already a candidate in this election.")
         
         return user
+
+
+class InvitationForm(forms.ModelForm):
+    """Form for sending invitations to private elections"""
+    
+    invited_emails = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Enter email addresses, one per line'
+        }),
+        help_text='Enter one email address per line',
+        label='Email Addresses'
+    )
+    
+    expires_in_days = forms.IntegerField(
+        initial=7,
+        min_value=1,
+        max_value=30,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'max': '30'
+        }),
+        help_text='Number of days until invitation expires (1-30)',
+        label='Expires In (Days)'
+    )
+    
+    class Meta:
+        model = Invitation
+        fields = ['message']
+        widgets = {
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Optional personal message for the invitation'
+            }),
+        }
+        labels = {
+            'message': 'Personal Message (Optional)',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.election = kwargs.pop('election', None)
+        super().__init__(*args, **kwargs)
+    
+    def clean_invited_emails(self):
+        """Validate and process email addresses"""
+        emails_text = self.cleaned_data.get('invited_emails', '')
+        
+        # Split by lines and clean up
+        emails = [email.strip() for email in emails_text.split('\n') if email.strip()]
+        
+        if not emails:
+            raise ValidationError("Please enter at least one email address.")
+        
+        # Validate email formats
+        from django.core.validators import validate_email
+        valid_emails = []
+        for email in emails:
+            try:
+                validate_email(email)
+                valid_emails.append(email.lower())
+            except ValidationError:
+                raise ValidationError(f"'{email}' is not a valid email address.")
+        
+        # Check for duplicates
+        if len(valid_emails) != len(set(valid_emails)):
+            raise ValidationError("Duplicate email addresses found.")
+        
+        # Check if any of these users are already invited
+        if self.election:
+            existing_invitations = Invitation.objects.filter(
+                election=self.election,
+                invited_email__in=valid_emails
+            ).values_list('invited_email', flat=True)
+            
+            if existing_invitations:
+                existing_list = list(existing_invitations)
+                raise ValidationError(
+                    f"The following email addresses already have invitations: {', '.join(existing_list)}"
+                )
+        
+        return valid_emails
+    
+    def save_invitations(self, invited_by_user):
+        """Create individual invitation objects for each email"""
+        if not self.election:
+            raise ValueError("Election must be set before saving invitations")
+        
+        emails = self.cleaned_data['invited_emails']
+        expires_in_days = self.cleaned_data['expires_in_days']
+        message = self.cleaned_data.get('message', '')
+        
+        invitations = []
+        for email in emails:
+            # Check if user exists with this email
+            try:
+                invited_user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                invited_user = None
+            
+            invitation = Invitation.objects.create(
+                election=self.election,
+                invited_user=invited_user,
+                invited_email=email,
+                invited_by=invited_by_user,
+                message=message,
+                expires_at=timezone.now() + timedelta(days=expires_in_days)
+            )
+            invitations.append(invitation)
+        
+        return invitations
+
+
+class InvitationResponseForm(forms.Form):
+    """Form for accepting or declining invitations"""
+    
+    RESPONSE_CHOICES = [
+        ('accept', 'Accept Invitation'),
+        ('decline', 'Decline Invitation'),
+    ]
+    
+    response = forms.ChoiceField(
+        choices=RESPONSE_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label='Your Response'
+    )
