@@ -2,7 +2,7 @@
 
 {% block content %}
 <!-- Profile Header - Full Width -->
-<header class="bg-success text-white py-4 mb-0">
+<header class="bg-primary text-white py-4 mb-0">
   <div class="container">
     <header>
       <h1 class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</h1>
@@ -83,7 +83,7 @@
         </div>
         <div class="card-body">
           <div class="text-center mb-3">
-            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 60px; height: 60px;">
+            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 60px; height: 60px;">
               <i class="bi bi-person-fill text-white" style="font-size: 1.5rem;"></i>
             </div>
             <h6 class="mb-0">{{ request.user.get_full_name|default:request.user.username }}</h6>

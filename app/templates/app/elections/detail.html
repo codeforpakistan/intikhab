@@ -2,7 +2,7 @@
 
 {% block content %}
 <!-- Election Header - Full Width -->
-<header class="bg-success text-white py-4 mb-0">
+<header class="bg-primary text-white py-4 mb-0">
   <div class="container">
     <header>
       <h1 class="mb-0">{{ election.name }}</h1>
@@ -64,7 +64,7 @@
           </div>
         </div>
         <div class="progress" style="height: 8px;">
-          <div class="progress-bar {% if forloop.first %}bg-success{% else %}bg-secondary{% endif %}" 
+          <div class="progress-bar {% if forloop.first %}bg-primary{% else %}bg-secondary{% endif %}" 
                role="progressbar" 
                style="width: {{ result.percentage }}%" 
                aria-valuenow="{{ result.percentage }}" 
