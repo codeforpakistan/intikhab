@@ -136,7 +136,7 @@ class CloseElectionView(LoginRequiredMixin, View):
             return redirect('election_list')
 
 
-class VerifyResultsView(LoginRequiredMixin, View):
+class VerifyResultsView(View):
     """Verify election results using homomorphic encryption"""
     
     def get(self, request, election_id):

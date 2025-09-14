@@ -172,7 +172,7 @@ class CandidateDeleteView(LoginRequiredMixin, DeleteView):
         return user.is_superuser or user.groups.filter(name='Officials').exists()
 
 
-class CandidateDetailView(LoginRequiredMixin, DetailView):
+class CandidateDetailView(DetailView):
     """View a candidate's profile"""
     model = Candidate
     template_name = 'app/candidates/detail.html'
@@ -187,21 +187,27 @@ class CandidateDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['election'] = self.election
         
-        # Check if current user has voted in this election
-        from app.models import Vote
-        user_votes = Vote.objects.filter(election=self.election, user=self.request.user)
-        context['voted'] = user_votes.count()
-        
-        # Check if current user can remove this candidate
-        context['can_remove_candidate'] = self._can_remove_candidate(
-            self.request.user, 
-            self.election
-        )
+        if self.request.user.is_authenticated:
+            # Check if current user has voted in this election
+            from app.models import Vote
+            user_votes = Vote.objects.filter(election=self.election, user=self.request.user)
+            context['voted'] = user_votes.count()
+            
+            # Check if current user can remove this candidate
+            context['can_remove_candidate'] = self._can_remove_candidate(
+                self.request.user, 
+                self.election
+            )
+        else:
+            context['voted'] = 0
+            context['can_remove_candidate'] = False
         
         return context
     
     def _can_remove_candidate(self, user, election):
         """Check if user can remove candidates from this election"""
+        if not user.is_authenticated:
+            return False
         # User can remove candidates if they are:
         # 1. The election creator/owner
         # 2. Superuser 

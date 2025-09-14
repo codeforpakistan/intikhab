@@ -13,7 +13,7 @@ from app.models import Election, Vote
 from app.forms import ElectionForm, ElectionUpdateForm
 
 
-class ElectionListView(LoginRequiredMixin, ListView):
+class ElectionListView(ListView):
     """List elections organized by status: ongoing, upcoming, and recently closed"""
     model = Election
     template_name = 'app/elections/list.html'
@@ -139,7 +139,7 @@ class ElectionListView(LoginRequiredMixin, ListView):
         return Election.objects.none()
 
 
-class ElectionDetailView(LoginRequiredMixin, DetailView):
+class ElectionDetailView(DetailView):
     """Display election details with voting options and results"""
     model = Election
     template_name = 'app/elections/detail.html'
@@ -149,20 +149,24 @@ class ElectionDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         election = self.get_object()
         
-        # Check if current user has voted
-        user_votes = Vote.objects.filter(election=election, user=self.request.user)
-        context['voted'] = user_votes.count()
+        # Check if current user has voted (only for authenticated users)
+        if self.request.user.is_authenticated:
+            user_votes = Vote.objects.filter(election=election, user=self.request.user)
+            context['voted'] = user_votes.count()
+            context['can_edit'] = self._can_edit_election(election, self.request.user)
+        else:
+            context['voted'] = 0
+            context['can_edit'] = False
         
         # Get vote results if election is closed
         context['vote_results'] = self._count_votes(election)
-        
-        # Check if user can edit this election
-        context['can_edit'] = self._can_edit_election(election, self.request.user)
         
         return context
     
     def _can_edit_election(self, election, user):
         """Check if current user can edit this election"""
+        if not user.is_authenticated:
+            return False
         # User can edit if they are an election manager or the creator
         has_permission = (user.is_election_manager() or 
                          election.created_by == user)
@@ -221,6 +225,9 @@ class ElectionCreateView(LoginRequiredMixin, CreateView):
     
     def dispatch(self, request, *args, **kwargs):
         """Check if user has permission to create elections"""
+        if not request.user.is_authenticated:
+            messages.error(request, "Please log in to create elections.")
+            return redirect('election_list')
         if not request.user.is_election_creator():
             messages.error(request, "You don't have permission to create elections.")
             return redirect('election_list')
