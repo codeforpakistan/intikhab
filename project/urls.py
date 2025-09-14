@@ -38,7 +38,12 @@ from app.views import (
     # Candidate views
     CandidateCreateView, CandidateUpdateView, CandidateDeleteView, CandidateDetailView,
     # Vote views
-    VoteView, CloseElectionView, VerifyResultsView
+    VoteView, CloseElectionView, VerifyResultsView,
+    # Invitation views
+    send_invitations, manage_invitations, invitation_accept, 
+    resend_invitation, cancel_invitation, process_pending_invitation,
+    # Auth views
+    CustomLoginView
 )
 
 admin.site.site_header = 'Election Management System'
@@ -73,7 +78,16 @@ urlpatterns = [
     path('elections/<int:election_pk>/candidates/<int:pk>/vote', VoteView.as_view(), name='vote'),
     path('elections/<int:election_id>/verify-results', VerifyResultsView.as_view(), name='verify_results'),
     
+    # Invitation management
+    path('elections/<int:election_id>/invitations', manage_invitations, name='manage_invitations'),
+    path('elections/<int:election_id>/invitations/send', send_invitations, name='send_invitations'),
+    path('invitations/<uuid:token>/respond', invitation_accept, name='invitation_accept'),
+    path('invitations/<int:invitation_id>/resend', resend_invitation, name='resend_invitation'),
+    path('invitations/<int:invitation_id>/cancel', cancel_invitation, name='cancel_invitation'),
+    path('process-invitation', process_pending_invitation, name='process_pending_invitation'),
+    
     # Authentication
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path("accounts/", include("django.contrib.auth.urls")),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
