@@ -2,7 +2,7 @@
 
 {% block content %}
 <!-- Page Header -->
-<header class="bg-success text-white py-4 mb-0">
+<header class="bg-primary text-white py-4 mb-0">
   <div class="container">
     <h1 class="mb-0">{{ candidate.user.get_full_name }}</h1>
     <p class="mb-0 lead">Candidate Profile</p>
@@ -129,19 +129,30 @@
       </div>
 
       <!-- Vote Action Card -->
-      {% if election.is_voting_open and user.is_authenticated %}
+      {% if election.is_voting_open %}
         <div class="card border-0 mb-4">
           <div class="card-header border-0">
             <h5 class="card-title mb-0"><i class="bi bi-ballot me-2"></i>Cast Your Vote</h5>
           </div>
           <div class="card-body text-center">
-            {% if not voted %}
-              <a class="btn btn-primary btn-lg w-100" href="{% url 'vote' election.pk candidate.pk %}">
-                <i class="bi bi-check-circle me-2"></i>Vote for {{ candidate.user.get_full_name }}
-              </a>
+            {% if user.is_authenticated %}
+              {% if not voted %}
+                <a class="btn btn-primary btn-lg w-100" href="{% url 'vote' election.pk candidate.pk %}">
+                  <i class="bi bi-check-circle me-2"></i>Vote for {{ candidate.user.get_full_name }}
+                </a>
+              {% else %}
+                <div class="alert alert-info mb-0">
+                  <i class="bi bi-check-circle-fill me-2"></i>You have already voted in this election
+                </div>
+              {% endif %}
             {% else %}
-              <div class="alert alert-info mb-0">
-                <i class="bi bi-check-circle-fill me-2"></i>You have already voted in this election
+              <a class="btn btn-outline-primary btn-lg w-100" href="{% url 'login' %}?next={% url 'vote' election.pk candidate.pk %}">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login to Vote
+              </a>
+              <div class="mt-2">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>You need to login to participate in this election
+                </small>
               </div>
             {% endif %}
           </div>
