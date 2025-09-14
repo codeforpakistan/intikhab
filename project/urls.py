@@ -64,27 +64,27 @@ urlpatterns = [
     # Election management
     path('elections', ElectionListView.as_view(), name='election_list'),
     path('elections/create', ElectionCreateView.as_view(), name='create_election'),
-    path('elections/<int:pk>', ElectionDetailView.as_view(), name='election_detail'),
-    path('elections/<int:pk>/edit', ElectionUpdateView.as_view(), name='edit_election'),
-    path('elections/<int:pk>/close', CloseElectionView.as_view(), name='close_election'),
-    path('elections/<int:pk>/start', StartElectionView.as_view(), name='start_election'),
+    path('elections/<uuid:uuid>', ElectionDetailView.as_view(), name='election_detail'),
+    path('elections/<uuid:uuid>/edit', ElectionUpdateView.as_view(), name='edit_election'),
+    path('elections/<uuid:uuid>/close', CloseElectionView.as_view(), name='close_election'),
+    path('elections/<uuid:uuid>/start', StartElectionView.as_view(), name='start_election'),
     
     # Candidate management
-    path('elections/<int:election_pk>/candidates/create', CandidateCreateView.as_view(), name='add_candidate'),
-    path('elections/<int:election_pk>/candidates/<int:pk>', CandidateDetailView.as_view(), name='candidate_detail'),
-    path('elections/<int:election_pk>/candidates/<int:pk>/edit', CandidateUpdateView.as_view(), name='edit_candidate'),
-    path('elections/<int:election_pk>/candidates/<int:pk>/delete', CandidateDeleteView.as_view(), name='delete_candidate'),
+    path('elections/<uuid:uuid>/candidates/create', CandidateCreateView.as_view(), name='add_candidate'),
+    path('candidates/<uuid:uuid>', CandidateDetailView.as_view(), name='candidate_detail'),
+    path('candidates/<uuid:uuid>/edit', CandidateUpdateView.as_view(), name='edit_candidate'),
+    path('candidates/<uuid:uuid>/delete', CandidateDeleteView.as_view(), name='delete_candidate'),
     
     # Voting and results
-    path('elections/<int:election_pk>/candidates/<int:pk>/vote', VoteView.as_view(), name='vote'),
-    path('elections/<int:election_id>/verify-results', VerifyResultsView.as_view(), name='verify_results'),
+    path('candidates/<uuid:uuid>/vote', VoteView.as_view(), name='vote'),
+    path('elections/<uuid:uuid>/verify-results', VerifyResultsView.as_view(), name='verify_results'),
     
     # Invitation management
-    path('elections/<int:election_id>/invitations', manage_invitations, name='manage_invitations'),
-    path('elections/<int:election_id>/invitations/send', send_invitations, name='send_invitations'),
-    path('invitations/<uuid:token>/respond', invitation_accept, name='invitation_accept'),
-    path('invitations/<int:invitation_id>/resend', resend_invitation, name='resend_invitation'),
-    path('invitations/<int:invitation_id>/cancel', cancel_invitation, name='cancel_invitation'),
+    path('elections/<uuid:uuid>/invitations', manage_invitations, name='manage_invitations'),
+    path('elections/<uuid:uuid>/invitations/send', send_invitations, name='send_invitations'),
+    path('invitations/<uuid:uuid>/respond', invitation_accept, name='invitation_accept'),
+    path('invitations/<uuid:uuid>/resend', resend_invitation, name='resend_invitation'),
+    path('invitations/<uuid:uuid>/cancel', cancel_invitation, name='cancel_invitation'),
     path('process-invitation', process_pending_invitation, name='process_pending_invitation'),
     
     # Authentication

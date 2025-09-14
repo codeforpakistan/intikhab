@@ -16,21 +16,21 @@ from app.email_utils import send_vote_confirmation
 class VoteView(LoginRequiredMixin, View):
     """Handle user voting for a candidate"""
     
-    def get(self, request, election_pk, pk):
+    def get(self, request, uuid):
         """Display voting confirmation page"""
         try:
-            election = get_object_or_404(Election, pk=election_pk)
-            candidate = get_object_or_404(Candidate, pk=pk)
+            candidate = get_object_or_404(Candidate, uuid=uuid)
+            election = candidate.election
             
             # Verify candidate belongs to this election
             if candidate.election != election:
                 messages.error(request, "Invalid candidate for this election.")
-                return redirect('election_detail', pk=election.pk)
+                return redirect('election_detail', uuid=election.uuid)
             
             # Check if voting is allowed
             if not election.is_voting_open():
                 messages.error(request, "Voting is not currently open for this election.")
-                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+                return redirect('candidate_detail', uuid=candidate.uuid)
             
             # Check if user is authorized to vote
             if not election.can_user_vote(request.user):
@@ -38,12 +38,12 @@ class VoteView(LoginRequiredMixin, View):
                     messages.error(request, "You are not authorized to vote in this election.")
                 else:
                     messages.error(request, "This is a private election. You need an invitation to vote.")
-                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+                return redirect('candidate_detail', uuid=candidate.uuid)
             
             # Check if user already voted
             if Vote.objects.filter(user=request.user, election=election).exists():
                 messages.error(request, "You have already voted in this election.")
-                return redirect('candidate_detail', election_pk=election.pk, pk=candidate.pk)
+                return redirect('candidate_detail', uuid=candidate.uuid)
             
             # Render voting confirmation page
             return render(request, 'app/voting/confirm.html', {
@@ -55,20 +55,20 @@ class VoteView(LoginRequiredMixin, View):
             messages.error(request, "Invalid election or candidate.")
             return redirect('election_list')
     
-    def post(self, request, election_pk, pk):
+    def post(self, request, uuid):
         """Process a vote submission"""
         try:
-            election = get_object_or_404(Election, pk=election_pk)
-            candidate = get_object_or_404(Candidate, pk=pk)
+            candidate = get_object_or_404(Candidate, uuid=uuid)
+            election = candidate.election
             
             # Verify candidate belongs to this election
             if candidate.election != election:
                 messages.error(request, "Invalid candidate for this election.")
-                return redirect('election_detail', pk=election.pk)
+                return redirect('election_detail', uuid=election.uuid)
             
             # Validate voting conditions
             if not self._can_vote(request.user, election, candidate):
-                return redirect('election_detail', pk=election.pk)
+                return redirect('election_detail', uuid=election.uuid)
             
             # Create the vote with proper encryption
             vote = Vote(
@@ -83,14 +83,14 @@ class VoteView(LoginRequiredMixin, View):
                 send_vote_confirmation(request.user, election)
             
             messages.success(request, "Your vote has been recorded successfully!")
-            return redirect('election_detail', pk=election.pk)
+            return redirect('election_detail', uuid=election.uuid)
             
         except (Election.DoesNotExist, Candidate.DoesNotExist):
             messages.error(request, "Invalid election or candidate.")
             return redirect('election_list')
         except Exception as e:
             messages.error(request, "An error occurred while processing your vote.")
-            return redirect('election_detail', pk=election_pk)
+            return redirect('election_list')
     
     def _can_vote(self, user, election, candidate):
         """Check if user can vote in this election for this candidate"""
@@ -123,14 +123,14 @@ class VoteView(LoginRequiredMixin, View):
 class CloseElectionView(LoginRequiredMixin, View):
     """Close an election (only for officials)"""
     
-    def post(self, request, pk):
+    def post(self, request, uuid):
         """Close the specified election"""
         if not request.user.can_close_elections():
             messages.error(request, "You don't have permission to close elections.")
-            return redirect('election_detail', pk=pk)
+            return redirect('election_detail', uuid=uuid)
         
         try:
-            election = get_object_or_404(Election, pk=pk)
+            election = get_object_or_404(Election, uuid=uuid)
             
             # Check if election can be closed using the model method
             if not election.can_be_closed():
@@ -140,7 +140,7 @@ class CloseElectionView(LoginRequiredMixin, View):
                     messages.error(request, f"Election '{election.name}' has already been closed.")
                 else:
                     messages.error(request, f"Election '{election.name}' cannot be closed at this time.")
-                return redirect('election_detail', pk=pk)
+                return redirect('election_detail', uuid=uuid)
             
             # Close the election using the model method
             if election.close_election():
@@ -149,7 +149,7 @@ class CloseElectionView(LoginRequiredMixin, View):
             else:
                 messages.error(request, f"Failed to close election '{election.name}'.")
             
-            return redirect('election_detail', pk=pk)
+            return redirect('election_detail', uuid=uuid)
             
         except Election.DoesNotExist:
             messages.error(request, "Election not found.")
@@ -159,14 +159,14 @@ class CloseElectionView(LoginRequiredMixin, View):
 class StartElectionView(LoginRequiredMixin, View):
     """Start/activate an election (only for officials)"""
     
-    def post(self, request, pk):
+    def post(self, request, uuid):
         """Start the specified election"""
         if not request.user.can_close_elections():  # Using same permission for start/close
             messages.error(request, "You don't have permission to start elections.")
-            return redirect('election_detail', pk=pk)
+            return redirect('election_detail', uuid=uuid)
         
         try:
-            election = get_object_or_404(Election, pk=pk)
+            election = get_object_or_404(Election, uuid=uuid)
             
             # Check if election can be started using the model method
             if not election.can_be_started():
@@ -176,7 +176,7 @@ class StartElectionView(LoginRequiredMixin, View):
                     messages.error(request, f"Election '{election.name}' has already been started before and cannot be restarted.")
                 else:
                     messages.error(request, f"Election '{election.name}' cannot be started at this time.")
-                return redirect('election_detail', pk=pk)
+                return redirect('election_detail', uuid=uuid)
             
             # Start the election using the model method
             if election.start_election():
@@ -185,7 +185,7 @@ class StartElectionView(LoginRequiredMixin, View):
             else:
                 messages.error(request, f"Failed to start election '{election.name}'.")
             
-            return redirect('election_detail', pk=pk)
+            return redirect('election_detail', uuid=uuid)
             
         except Election.DoesNotExist:
             messages.error(request, "Election not found.")
@@ -195,10 +195,10 @@ class StartElectionView(LoginRequiredMixin, View):
 class VerifyResultsView(View):
     """Verify election results using homomorphic encryption"""
     
-    def get(self, request, election_id):
+    def get(self, request, uuid):
         """Display results verification page"""
         try:
-            election = get_object_or_404(Election, pk=election_id)
+            election = get_object_or_404(Election, uuid=uuid)
             
             # Perform verification if election has encryption data
             verified = self._verify_results(election)

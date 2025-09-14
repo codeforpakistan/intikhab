@@ -4,7 +4,7 @@
     {% include 'app/partials/candidate_avatar.html' with candidate=candidate size=80 css_classes="mb-3" %}
     
     <h5 class="card-title mb-2">
-      <a href="{% url 'candidate_detail' election.pk candidate.id %}" class="stretched-link text-decoration-none link-dark">{{ candidate.user.get_full_name }}</a>
+      <a href="{% url 'candidate_detail' uuid=candidate.uuid %}" class="stretched-link text-decoration-none link-dark">{{ candidate.user.get_full_name }}</a>
     </h5>
     
     {% if candidate.party %}

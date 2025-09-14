@@ -103,7 +103,7 @@
 
             <!-- Form Actions -->
             <div class="d-flex justify-content-between">
-              <a href="{% url 'election_detail' election.pk %}" class="btn btn-outline-secondary">
+              <a href="{% url 'election_detail' uuid=election.uuid %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-2"></i>Back to Election
               </a>
               <button type="submit" class="btn btn-primary">
@@ -138,7 +138,7 @@
             </div>
           </div>
           <div class="text-center mt-3">
-            <a href="{% url 'manage_invitations' election_id=election.pk %}" class="btn btn-outline-primary btn-sm">
+            <a href="{% url 'manage_invitations' uuid=election.uuid %}" class="btn btn-outline-primary btn-sm">
               <i class="bi bi-gear me-2"></i>Manage All Invitations
             </a>
           </div>

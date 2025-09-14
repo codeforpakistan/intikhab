@@ -30,7 +30,7 @@
         </div>
         
         <div class="text-center">
-          <a href="{% url 'election_detail' pk=election.pk %}" class="btn btn-secondary">
+          <a href="{% url 'election_detail' uuid=election.uuid %}" class="btn btn-secondary">
             <i class="bi bi-arrow-left me-2"></i>Back to Election
           </a>
         </div>
@@ -111,7 +111,7 @@
           </div>
           <div class="card-footer border-0 bg-transparent">
             <div class="d-flex gap-3 justify-content-end">
-              <a href="{% url 'election_detail' pk=election.pk %}" class="btn btn-secondary">
+              <a href="{% url 'election_detail' uuid=election.uuid %}" class="btn btn-secondary">
                 Cancel
               </a>
               <button type="submit" class="btn btn-success">

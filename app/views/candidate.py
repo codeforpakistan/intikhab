@@ -24,7 +24,7 @@ class CandidateCreateView(LoginRequiredMixin, CreateView):
             return redirect('election_list')
         
         # Get the election for this candidate
-        self.election = get_object_or_404(Election, pk=kwargs['election_pk'])
+        self.election = get_object_or_404(Election, uuid=kwargs['uuid'])
         
         # Check if election can be edited (not active during voting or closed)
         if not self.election.is_editable():
@@ -32,7 +32,7 @@ class CandidateCreateView(LoginRequiredMixin, CreateView):
                 messages.error(request, "Cannot add candidates to a closed election.")
             else:
                 messages.error(request, "Cannot add candidates during active voting period.")
-            return redirect('election_detail', pk=self.election.pk)
+            return redirect('election_detail', uuid=self.election.uuid)
         
         return super().dispatch(request, *args, **kwargs)
     
@@ -52,7 +52,7 @@ class CandidateCreateView(LoginRequiredMixin, CreateView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('election_detail', kwargs={'pk': self.election.pk})
+        return reverse_lazy('election_detail', kwargs={'uuid': self.election.uuid})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,23 +92,47 @@ class CandidateUpdateView(LoginRequiredMixin, UpdateView):
     form_class = CandidateForm
     template_name = 'app/candidates/edit.html'
     
+    def get_object(self, queryset=None):
+        """Get the candidate object and set the election"""
+        obj = super().get_object(queryset)
+        self.election = obj.election
+        return obj
+    
     def dispatch(self, request, *args, **kwargs):
         """Check permissions and get election"""
-        self.election = get_object_or_404(Election, pk=kwargs['election_pk'])
         if not self._is_official(request.user):
             messages.error(request, "You don't have permission to edit candidates.")
-            return redirect('election_detail', pk=self.election.pk)
+            return redirect('election_list')
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        """Handle GET request with permission checks"""
+        candidate = self.get_object()
         
         # Check if election can be edited (not active during voting or closed)
         if not self.election.is_editable():
-            candidate = self.get_object()
             if self.election.closed_at:
                 messages.error(request, "Cannot edit candidates in a closed election.")
             else:
                 messages.error(request, "Cannot edit candidates during active voting period.")
-            return redirect('candidate_detail', election_pk=self.election.pk, pk=candidate.pk)
+            return redirect('candidate_detail', uuid=candidate.uuid)
         
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        """Handle POST request with permission checks"""
+        candidate = self.get_object()
+        
+        # Check if election can be edited (not active during voting or closed)
+        if not self.election.is_editable():
+            if self.election.closed_at:
+                messages.error(request, "Cannot edit candidates in a closed election.")
+            else:
+                messages.error(request, "Cannot edit candidates during active voting period.")
+            return redirect('candidate_detail', uuid=candidate.uuid)
+        
+        return super().post(request, *args, **kwargs)
     
     def form_valid(self, form):
         """Handle successful form submission"""
@@ -120,7 +144,7 @@ class CandidateUpdateView(LoginRequiredMixin, UpdateView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('election_detail', kwargs={'pk': self.election.pk})
+        return reverse_lazy('election_detail', kwargs={'uuid': self.election.uuid})
     
     def get_context_data(self, **kwargs):
         """Add election to context"""
@@ -138,23 +162,27 @@ class CandidateDeleteView(LoginRequiredMixin, DeleteView):
     model = Candidate
     template_name = 'app/candidates/delete.html'
     
+    def get_object(self, queryset=None):
+        """Get the candidate object and set the election"""
+        obj = super().get_object(queryset)
+        self.election = obj.election
+        return obj
+    
     def dispatch(self, request, *args, **kwargs):
         """Check permissions and election status"""
-        self.election = get_object_or_404(Election, pk=kwargs['election_pk'])
-        
         # Check if user can remove candidates from this election
+        candidate = self.get_object()
         if not self._can_remove_candidate(request.user, self.election):
             messages.error(request, "You don't have permission to remove candidates from this election.")
-            return redirect('election_detail', pk=self.election.pk)
+            return redirect('election_detail', uuid=self.election.uuid)
         
         # Check if election can be edited (not active during voting or closed)
         if not self.election.is_editable():
-            candidate = self.get_object()
             if self.election.closed_at:
                 messages.error(request, "Cannot remove candidates from a closed election.")
             else:
                 messages.error(request, "Cannot remove candidates during active voting period.")
-            return redirect('candidate_detail', election_pk=self.election.pk, pk=candidate.pk)
+            return redirect('candidate_detail', uuid=candidate.uuid)
         
         return super().dispatch(request, *args, **kwargs)
     
@@ -171,7 +199,7 @@ class CandidateDeleteView(LoginRequiredMixin, DeleteView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('election_detail', kwargs={'pk': self.election.pk})
+        return reverse_lazy('election_detail', kwargs={'uuid': self.election.uuid})
     
     def get_context_data(self, **kwargs):
         """Add election to context"""
@@ -199,26 +227,29 @@ class CandidateDetailView(DetailView):
     model = Candidate
     template_name = 'app/candidates/detail.html'
     context_object_name = 'candidate'
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
     
     def dispatch(self, request, *args, **kwargs):
-        """Get election and verify candidate belongs to it"""
-        self.election = get_object_or_404(Election, pk=kwargs['election_pk'])
+        """Verify candidate exists"""
         return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['election'] = self.election
+        candidate = self.get_object()
+        election = candidate.election
+        context['election'] = election
         
         if self.request.user.is_authenticated:
             # Check if current user has voted in this election
             from app.models import Vote
-            user_votes = Vote.objects.filter(election=self.election, user=self.request.user)
+            user_votes = Vote.objects.filter(election=election, user=self.request.user)
             context['voted'] = user_votes.count()
             
             # Check if current user can remove this candidate
             context['can_remove_candidate'] = self._can_remove_candidate(
                 self.request.user, 
-                self.election
+                election
             )
         else:
             context['voted'] = 0

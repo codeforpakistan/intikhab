@@ -28,7 +28,7 @@
             <li class="breadcrumb-item active" aria-current="page">Create Election</li>
           {% elif election %}
             <li class="breadcrumb-item">
-              <a href="{% url 'election_detail' pk=election.pk %}" class="text-decoration-none text-dark">{{ election.name|truncatechars:30 }}</a>
+              <a href="{% url 'election_detail' uuid=election.uuid %}" class="text-decoration-none text-dark">{{ election.name|truncatechars:30 }}</a>
             </li>
             {% if 'edit' in request.path %}
               <li class="breadcrumb-item active" aria-current="page">Edit</li>
@@ -49,7 +49,7 @@
               <a href="{% url 'election_list' %}" class="text-decoration-none text-dark">Elections</a>
             </li>
             <li class="breadcrumb-item">
-              <a href="{% url 'election_detail' pk=election.pk %}" class="text-decoration-none text-dark">{{ election.name|truncatechars:30 }}</a>
+              <a href="{% url 'election_detail' uuid=election.uuid %}" class="text-decoration-none text-dark">{{ election.name|truncatechars:30 }}</a>
             </li>
             {% if 'create' in request.path %}
               <li class="breadcrumb-item active" aria-current="page">Add Candidate</li>

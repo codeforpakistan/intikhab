@@ -16,9 +16,9 @@ from app.forms import InvitationForm, InvitationResponseForm
 
 
 @login_required
-def send_invitations(request, election_id):
+def send_invitations(request, uuid):
     """Send invitations for a private election"""
-    election = get_object_or_404(Election, id=election_id)
+    election = get_object_or_404(Election, uuid=uuid)
     
     # Check if user can manage this election
     if not election.can_be_edited_by(request.user):
@@ -30,12 +30,12 @@ def send_invitations(request, election_id):
             messages.error(request, "Cannot manage invitations for a closed election.")
         else:
             messages.error(request, "Cannot manage invitations during active voting period.")
-        return redirect('election_detail', pk=election.id)
+        return redirect('election_detail', uuid=election.uuid)
     
     # Only private elections can have invitations
     if election.is_public:
         messages.error(request, "Cannot send invitations for public elections.")
-        return redirect('election_detail', pk=election.id)
+        return redirect('election_detail', uuid=election.uuid)
     
     if request.method == 'POST':
         form = InvitationForm(request.POST, election=election)
@@ -54,7 +54,7 @@ def send_invitations(request, election_id):
                     request, 
                     f"Successfully sent {successful_emails} invitations out of {len(invitations)} total."
                 )
-                return redirect('manage_invitations', election_id=election.id)
+                return redirect('manage_invitations', uuid=election.uuid)
                 
             except Exception as e:
                 messages.error(request, f"Error creating invitations: {str(e)}")
@@ -70,9 +70,9 @@ def send_invitations(request, election_id):
 
 
 @login_required
-def manage_invitations(request, election_id):
+def manage_invitations(request, uuid):
     """Manage invitations for an election"""
-    election = get_object_or_404(Election, id=election_id)
+    election = get_object_or_404(Election, uuid=uuid)
     
     # Check if user can manage this election
     if not election.can_be_edited_by(request.user):
@@ -84,7 +84,7 @@ def manage_invitations(request, election_id):
             messages.error(request, "Cannot manage invitations for a closed election.")
         else:
             messages.error(request, "Cannot manage invitations during active voting period.")
-        return redirect('election_detail', pk=election.id)
+        return redirect('election_detail', uuid=election.uuid)
     
     invitations = election.invitations.all().order_by('-created_at')
     
@@ -108,9 +108,9 @@ def manage_invitations(request, election_id):
     return render(request, 'app/invitations/manage_invitations.html', context)
 
 
-def invitation_accept(request, token):
+def invitation_accept(request, uuid):
     """Handle invitation acceptance/decline"""
-    invitation = get_object_or_404(Invitation, invitation_token=token)
+    invitation = get_object_or_404(Invitation, invitation_token=uuid)
     
     # Check if invitation is still valid
     if not invitation.can_accept():
@@ -128,7 +128,7 @@ def invitation_accept(request, token):
                 # User must be logged in to accept
                 if not request.user.is_authenticated:
                     # Store the invitation token in session and redirect to login
-                    request.session['invitation_token'] = str(token)
+                    request.session['invitation_token'] = str(uuid)
                     messages.info(request, 'Please log in to accept the invitation.')
                     return redirect('login')
                 
@@ -138,7 +138,7 @@ def invitation_accept(request, token):
                         request, 
                         f'You have successfully accepted the invitation to vote in "{invitation.election.name}".'
                     )
-                    return redirect('election_detail', pk=invitation.election.id)
+                    return redirect('election_detail', uuid=invitation.election.uuid)
                 else:
                     messages.error(request, 'Unable to accept invitation. It may have expired.')
         
@@ -171,7 +171,7 @@ def resend_invitation(request, invitation_id):
     
     if invitation.status != 'pending':
         messages.error(request, "Can only resend pending invitations.")
-        return redirect('manage_invitations', election_id=invitation.election.id)
+        return redirect('manage_invitations', uuid=invitation.election.uuid)
     
     if send_invitation_email(invitation):
         invitation.mark_as_sent()
@@ -179,7 +179,7 @@ def resend_invitation(request, invitation_id):
     else:
         messages.error(request, f"Failed to resend invitation to {invitation.invited_email}")
     
-    return redirect('manage_invitations', election_id=invitation.election.id)
+    return redirect('manage_invitations', uuid=invitation.election.uuid)
 
 
 @login_required
@@ -193,12 +193,12 @@ def cancel_invitation(request, invitation_id):
     
     if invitation.status != 'pending':
         messages.error(request, "Can only cancel pending invitations.")
-        return redirect('manage_invitations', election_id=invitation.election.id)
+        return redirect('manage_invitations', uuid=invitation.election.uuid)
     
     invitation.delete()
     messages.success(request, f"Invitation to {invitation.invited_email} has been cancelled.")
     
-    return redirect('manage_invitations', election_id=invitation.election.id)
+    return redirect('manage_invitations', uuid=invitation.election.uuid)
 
 
 def send_invitation_email(invitation):
@@ -258,7 +258,7 @@ def process_pending_invitation(request):
                 )
                 # Clear the session
                 del request.session['invitation_token']
-                return redirect('election_detail', pk=invitation.election.id)
+                return redirect('election_detail', uuid=invitation.election.uuid)
         
         messages.error(request, 'Invitation is no longer valid.')
         del request.session['invitation_token']

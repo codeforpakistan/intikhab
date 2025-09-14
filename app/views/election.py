@@ -144,6 +144,8 @@ class ElectionDetailView(DetailView):
     model = Election
     template_name = 'app/elections/detail.html'
     context_object_name = 'election'
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -206,7 +208,7 @@ class ElectionCreateView(LoginRequiredMixin, CreateView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('election_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('election_detail', kwargs={'uuid': self.object.uuid})
 
 
 class ElectionUpdateView(LoginRequiredMixin, UpdateView):
@@ -214,13 +216,15 @@ class ElectionUpdateView(LoginRequiredMixin, UpdateView):
     model = Election
     form_class = ElectionUpdateForm
     template_name = 'app/elections/edit.html'
+    slug_field = 'uuid'
+    slug_url_kwarg = 'uuid'
     
     def dispatch(self, request, *args, **kwargs):
         """Check if user has permission to edit this specific election"""
         election = self.get_object()
         if not self._can_edit_election(election, request.user):
             messages.error(request, "You don't have permission to edit this election.")
-            return redirect('election_detail', pk=kwargs['pk'])
+            return redirect('election_detail', uuid=kwargs['uuid'])
         return super().dispatch(request, *args, **kwargs)
     
     def form_valid(self, form):
@@ -233,7 +237,7 @@ class ElectionUpdateView(LoginRequiredMixin, UpdateView):
         return response
     
     def get_success_url(self):
-        return reverse_lazy('election_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('election_detail', kwargs={'uuid': self.object.uuid})
     
     def _can_edit_election(self, election, user):
         """Check if current user can edit this election"""

@@ -1,6 +1,7 @@
 """
 Election model for managing elections in the voting system
 """
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -8,6 +9,7 @@ from django.contrib.auth.models import User
 class Election(models.Model):
     """Model representing an election with its details and status"""
     
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     name = models.CharField(max_length=100)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()

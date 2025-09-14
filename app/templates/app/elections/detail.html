@@ -37,7 +37,7 @@
       {% endif %}
     </div>
     {% if election.decrypted_total %}
-      <button class="btn btn-outline-primary" hx-get="{% url 'verify_results' election.id %}" hx-target="#verification-results">
+      <button class="btn btn-outline-primary" hx-get="{% url 'verify_results' uuid=election.uuid %}" hx-target="#verification-results">
         <i class="bi bi-shield-check me-2"></i>Verify Results
       </button>
     {% endif %}
@@ -118,7 +118,7 @@
       <i class="bi bi-info-circle me-2"></i>
       <strong>No candidates yet.</strong> 
       {% if can_edit %}
-        <a href="{% url 'add_candidate' election_pk=election.pk %}">Add the first candidate</a> to get started.
+        <a href="{% url 'add_candidate' uuid=election.uuid %}">Add the first candidate</a> to get started.
       {% else %}
         Candidates will be added by election officials.
       {% endif %}
@@ -238,26 +238,26 @@
               </div>
               {% endif %}
               
-              <a href="{% url 'add_candidate' election_pk=election.pk %}" 
+              <a href="{% url 'add_candidate' uuid=election.uuid %}" 
                  class="btn btn-success {% if not can_edit %}disabled{% endif %}"
                  {% if not can_edit %}aria-disabled="true" title="{% if election.closed_at %}Cannot add candidates - election is closed{% else %}Cannot add candidates during active voting period{% endif %}"{% endif %}>
                 <i class="bi bi-person-plus me-2"></i>Add Candidate
               </a>
               {% if not election.is_public %}
-              <a href="{% url 'manage_invitations' election_id=election.pk %}" 
+              <a href="{% url 'manage_invitations' uuid=election.uuid %}" 
                  class="btn btn-primary {% if not can_edit %}disabled{% endif %}"
                  {% if not can_edit %}aria-disabled="true" title="{% if election.closed_at %}Cannot manage invitations - election is closed{% else %}Cannot manage invitations during active voting period{% endif %}"{% endif %}>
                 <i class="bi bi-people me-2"></i>Manage Invitations ({{ election.invitations.count }})
               </a>
               {% endif %}
-              <a href="{% url 'edit_election' election.pk %}" 
+              <a href="{% url 'edit_election' uuid=election.uuid %}" 
                  class="btn btn-outline-secondary {% if not can_edit %}disabled{% endif %}"
                  {% if not can_edit %}aria-disabled="true" title="{% if election.closed_at %}Cannot edit election - election is closed{% else %}Cannot edit election during active voting period{% endif %}"{% endif %}>
                 <i class="bi bi-pencil-square me-2"></i>Edit Election
               </a>
               {% with status=election.get_status %}
                 {% if election.can_be_closed %}
-                  <form method="post" action="{% url 'close_election' election.pk %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');" class="d-grid">
+                  <form method="post" action="{% url 'close_election' uuid=election.uuid %}" onsubmit="return confirm('Are you sure you want to close this election? This action cannot be undone.');" class="d-grid">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">
                       <i class="bi bi-stop-circle me-2"></i>
@@ -265,7 +265,7 @@
                     </button>
                   </form>
                 {% elif election.can_be_started %}
-                  <form method="post" action="{% url 'start_election' election.pk %}" onsubmit="return confirm('Are you sure you want to start this election?');" class="d-grid">
+                  <form method="post" action="{% url 'start_election' uuid=election.uuid %}" onsubmit="return confirm('Are you sure you want to start this election?');" class="d-grid">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-success">
                       <i class="bi bi-play-circle me-2"></i>Start Election

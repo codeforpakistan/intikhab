@@ -1,8 +1,11 @@
 """
 User profile model for extended user information
 """
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
+
+
 class Profile(models.Model):
     """Extended user profile information"""
     
@@ -13,6 +16,7 @@ class Profile(models.Model):
         ('N', 'Prefer not to say'),
     ]
     
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile = models.TextField(blank=True, help_text="User's background and qualifications")  
     manifesto = models.TextField(blank=True, help_text="User's policy positions and campaign promises")

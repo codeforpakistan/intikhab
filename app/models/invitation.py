@@ -4,7 +4,7 @@ Invitation model for managing private election access
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-import uuid
+import uuid as uuid_module
 
 
 class Invitation(models.Model):
@@ -17,6 +17,7 @@ class Invitation(models.Model):
         ('expired', 'Expired'),
     ]
     
+    uuid = models.UUIDField(default=uuid_module.uuid4, editable=False, unique=True, db_index=True)
     election = models.ForeignKey(
         'Election', 
         on_delete=models.CASCADE, 
@@ -57,7 +58,7 @@ class Invitation(models.Model):
     
     # Invitation details
     invitation_token = models.UUIDField(
-        default=uuid.uuid4, 
+        default=uuid_module.uuid4, 
         unique=True, 
         editable=False
     )

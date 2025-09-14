@@ -35,7 +35,7 @@
                   <h6 class="mb-1">{{ vote.election.name }}</h6>
                   <small>Voted on {{ vote.created|date:"M d, Y H:i" }}</small>
                 </div>
-                <a href="{% url 'election_detail' vote.election.id %}" class="btn btn-sm btn-outline-primary">View Election</a>
+                <a href="{% url 'election_detail' uuid=vote.election.uuid %}" class="btn btn-sm btn-outline-primary">View Election</a>
               </div>
               {% endfor %}
             </div>
@@ -80,11 +80,11 @@
                 </div>
               </div>
               <div class="btn-group" role="group">
-                <a href="{% url 'election_detail' pk=invitation.election.pk %}" class="btn btn-primary">
+                <a href="{% url 'election_detail' uuid=invitation.election.uuid %}" class="btn btn-primary">
                   View Election
                 </a>
                 {% if invitation.status == 'pending' and invitation.can_accept %}
-                  <a href="{% url 'invitation_response' token=invitation.invitation_token %}" class="btn btn-primary">
+                  <a href="{% url 'invitation_accept' uuid=invitation.invitation_token %}" class="btn btn-primary">
                     Respond
                   </a>
                 {% endif %}

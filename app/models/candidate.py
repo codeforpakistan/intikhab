@@ -1,6 +1,7 @@
 """
 Candidate model for managing election candidates
 """
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from .election import Election
@@ -10,6 +11,7 @@ from .party import Party
 class Candidate(models.Model):
     """Model representing a candidate in an election"""
     
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     symbol = models.FileField(upload_to='uploads/', null=True, blank=True)
     party = models.ForeignKey(Party, on_delete=models.PROTECT, null=True, blank=True)

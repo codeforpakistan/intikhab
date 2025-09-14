@@ -88,7 +88,7 @@
           </div>
           <div class="card-footer border-0 bg-transparent">
             <div class="d-flex gap-3 justify-content-between">
-              <a href="{% url 'candidate_detail' election.pk candidate.pk %}" class="btn btn-secondary">
+              <a href="{% url 'candidate_detail' uuid=candidate.uuid %}" class="btn btn-secondary">
                 Back to Candidate
               </a>
               <button type="submit" class="btn btn-success">

@@ -11,7 +11,7 @@ def generate_election_keys(sender, instance, created, **kwargs):
         private_key = encryption.paillier.keys['private_key']
         
         # Update the instance without triggering the save signal again
-        Election.objects.filter(pk=instance.pk).update(
+        Election.objects.filter(uuid=instance.uuid).update(
             public_key=public_key,
             private_key=private_key
         )

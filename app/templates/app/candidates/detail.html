@@ -59,7 +59,7 @@
               
               <div class="mb-3">
                 <strong>Election:</strong> 
-                <a href="{% url 'election_detail' election.id %}" class="text-decoration-none">{{ election.name }}</a>
+                <a href="{% url 'election_detail' uuid=election.uuid %}" class="text-decoration-none">{{ election.name }}</a>
               </div>
               
               {% if candidate.user.email %}
@@ -137,7 +137,7 @@
           <div class="card-body text-center">
             {% if user.is_authenticated %}
               {% if not voted %}
-                <a class="btn btn-primary btn-lg w-100" href="{% url 'vote' election.pk candidate.pk %}">
+                <a class="btn btn-primary btn-lg w-100" href="{% url 'vote' uuid=candidate.uuid %}">
                   <i class="bi bi-check-circle me-2"></i>Vote for {{ candidate.user.get_full_name }}
                 </a>
               {% else %}
@@ -146,7 +146,7 @@
                 </div>
               {% endif %}
             {% else %}
-              <a class="btn btn-outline-primary btn-lg w-100" href="{% url 'login' %}?next={% url 'vote' election.pk candidate.pk %}">
+              <a class="btn btn-outline-primary btn-lg w-100" href="{% url 'login' %}?next={% url 'vote' uuid=candidate.uuid %}">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Login to Vote
               </a>
               <div class="mt-2">
@@ -167,10 +167,10 @@
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">
-              <a href="{% url 'edit_candidate' election.pk candidate.pk %}" class="btn btn-outline-secondary">
+              <a href="{% url 'edit_candidate' uuid=candidate.uuid %}" class="btn btn-outline-secondary">
                 <i class="bi bi-pencil-square me-2"></i>Edit Candidate
               </a>
-              <a href="{% url 'delete_candidate' election.pk candidate.pk %}" class="btn btn-outline-danger">
+              <a href="{% url 'delete_candidate' uuid=candidate.uuid %}" class="btn btn-outline-danger">
                 <i class="bi bi-trash me-2"></i>Remove from Election
               </a>
             </div>

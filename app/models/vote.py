@@ -2,6 +2,7 @@
 Vote model for managing votes in elections
 """
 import json
+import uuid
 from hashlib import sha256
 from django.db import models
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from app.encryption import Encryption
 class Vote(models.Model):
     """Model representing a vote cast by a user in an election"""
     
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='votes')
     election = models.ForeignKey(Election, on_delete=models.PROTECT, related_name='votes')
     ballot = models.CharField(max_length=5000, default="", editable=False)
