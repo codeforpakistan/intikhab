@@ -32,7 +32,7 @@ from django.conf import settings
 # Import views from the new organized structure
 from app.views import (
     # Base views
-    index, profile, terms, privacy, accessibility, contact, faq,
+    index, profile, terms, privacy, accessibility, contact, faqs, how,
     # Election views
     ElectionListView, ElectionDetailView, ElectionCreateView, ElectionUpdateView,
     # Candidate views
@@ -59,7 +59,8 @@ urlpatterns = [
     path('privacy', privacy, name='privacy'),
     path('accessibility', accessibility, name='accessibility'),
     path('contact', contact, name='contact'),
-    path('faq', faq, name='faq'),
+    path('faqs', faqs, name='faqs'),
+    path('how', how, name='how'),
     
     # Election management
     path('elections', ElectionListView.as_view(), name='election_list'),

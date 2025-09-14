@@ -1,14 +1,14 @@
 {% extends 'app/layouts/page.html' %}
 {% load static %}
 
-{% block title %}FAQ - Intikhab{% endblock %}
+{% block title %}FAQs - Intikhab{% endblock %}
 
 {% block content %}
 <!-- Page Header - Full Width -->
 <header class="bg-primary text-white py-4 mb-0">
   <div class="container">
     <h1 class="mb-0">Frequently Asked Questions</h1>
-    <p class="mb-4">Find answers to common questions about using the Intikhab electronic voting platform</p>
+    <p class="mb-0">Find answers to common questions about using the Intikhab electronic voting platform</p>
   </div>
 </header>
 
@@ -66,25 +66,25 @@
         <div class="col-md-6">
           <div class="mb-4">
             <h4 class="h6">Is my vote secret and secure?</h4>
-            <p class="text-muted small">Yes, we use advanced encryption to ensure your vote is completely anonymous and secure. No one can trace your vote back to you. <a href="{% url 'privacy' %}" class="text-decoration-none">See privacy policy</a></p>
+            <p class="text-muted small">Yes, we use homomorphic encryption to ensure your vote is completely anonymous and secure. Your vote is encrypted immediately and remains encrypted throughout the entire tallying process. <a href="{% url 'how' %}" class="text-decoration-none">Learn about our encryption technology</a></p>
           </div>
           <div class="mb-4">
             <h4 class="h6">How is my personal information protected?</h4>
-            <p class="text-muted small">We follow strict data protection protocols and only collect necessary information for voter verification. All data is encrypted and securely stored.</p>
+            <p class="text-muted small">We follow strict data protection protocols and only collect necessary information for voter verification. All data is encrypted both at rest and in transit, with separation between voter identities and ballot choices. <a href="{% url 'privacy' %}" class="text-decoration-none">See privacy policy</a></p>
           </div>
           <div class="mb-4">
             <h4 class="h6">Can administrators see how I voted?</h4>
-            <p class="text-muted small">No, even system administrators cannot see individual voting choices. The encryption ensures complete voter privacy.</p>
+            <p class="text-muted small">No, even system administrators cannot see individual voting choices. Our homomorphic encryption ensures that votes can be counted without ever being decrypted individually. <a href="{% url 'how' %}" class="text-decoration-none">Learn how this works</a></p>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-4">
             <h4 class="h6">How do you prevent election fraud?</h4>
-            <p class="text-muted small">We use multiple security measures including voter authentication, encryption, audit trails, and prevention of duplicate voting.</p>
+            <p class="text-muted small">We use multiple security layers including cryptographic voter authentication, homomorphic encryption, immutable audit trails, duplicate vote prevention, and zero-knowledge proofs for verification. <a href="{% url 'how' %}" class="text-decoration-none">See technical details</a></p>
           </div>
           <div class="mb-4">
             <h4 class="h6">Are the election results verifiable?</h4>
-            <p class="text-muted small">Yes, the system provides verification tools that allow independent verification of results without compromising voter privacy.</p>
+            <p class="text-muted small">Yes, our system generates cryptographic proofs that allow independent verification of results without compromising voter privacy. The verification process uses zero-knowledge proofs to confirm accuracy. <a href="{% url 'how' %}" class="text-decoration-none">Learn about verification</a></p>
           </div>
           <div class="mb-4">
             <h4 class="h6">What happens to my data after the election?</h4>
@@ -183,6 +183,9 @@
       <div class="d-flex flex-wrap justify-content-center gap-3">
         <a href="{% url 'contact' %}" class="btn btn-primary">
           <i class="bi bi-envelope me-2"></i>Contact Support
+        </a>
+        <a href="{% url 'how' %}" class="btn btn-outline-primary">
+          <i class="bi bi-gear me-2"></i>How It Works
         </a>
         <a href="{% url 'accessibility' %}" class="btn btn-outline-primary">
           <i class="bi bi-universal-access me-2"></i>Accessibility Help

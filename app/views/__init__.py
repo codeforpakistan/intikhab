@@ -6,7 +6,7 @@ from .invitation import (
     send_invitations, manage_invitations, invitation_accept, 
     resend_invitation, cancel_invitation, process_pending_invitation
 )
-from .base import index, profile, terms, privacy, accessibility, contact, faq
+from .base import index, profile, terms, privacy, accessibility, contact, faqs, how
 from .auth import CustomLoginView
 
 # For backwards compatibility, make views available at the package level
@@ -23,7 +23,7 @@ __all__ = [
     # Base views
     'index', 'profile',
     # Legal views
-    'terms', 'privacy', 'accessibility', 'contact', 'faq',
+    'terms', 'privacy', 'accessibility', 'contact', 'faqs', 'how',
     # Auth views
     'CustomLoginView'
 ]

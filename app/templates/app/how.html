@@ -1,0 +1,292 @@
+{% extends 'app/layouts/page.html' %}
+
+{% block content %}
+<!-- Page Header -->
+<header class="bg-primary text-white py-4 mb-0">
+  <div class="container">
+    <h1 class="mb-0">How It Works</h1>
+    <p class="mb-0">Understanding the Intikhab electronic voting platform</p>
+  </div>
+</header>
+
+{% include 'app/partials/breadcrumbs.html' %}
+
+<!-- Content Section -->
+<article class="container py-5">
+      
+      <!-- Homomorphic Encryption Section -->
+      <section class="mb-5">
+        <h2 class="h3 fw-thin mb-4">Homomorphic Encryption Technology</h2>
+        <p class="lead text-muted mb-4">At the core of Intikhab's security is homomorphic encryption, which allows mathematical operations to be performed on encrypted data without decrypting it first.</p>
+        
+        <div class="card border-0 bg-light p-4 mb-4">
+          <h4 class="h5 fw-semibold mb-3">How It Works</h4>
+          <p class="mb-3">When you cast your vote, it is immediately encrypted using a public key before being stored. The encrypted vote can be added to other encrypted votes to calculate totals, all while remaining completely encrypted.</p>
+          <p class="mb-0">Only after all votes are tallied can the final results be decrypted, ensuring that individual votes remain private throughout the entire process.</p>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="text-center p-3">
+              <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 3rem; height: 3rem;">
+                <i class="bi bi-lock fs-5"></i>
+              </div>
+              <h5 class="h6 fw-semibold">Vote Encryption</h5>
+              <small class="text-muted">Your vote is encrypted immediately upon submission</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3">
+              <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 3rem; height: 3rem;">
+                <i class="bi bi-calculator fs-5"></i>
+              </div>
+              <h5 class="h6 fw-semibold">Encrypted Tallying</h5>
+              <small class="text-muted">Votes are counted while still encrypted</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3">
+              <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 3rem; height: 3rem;">
+                <i class="bi bi-eye fs-5"></i>
+              </div>
+              <h5 class="h6 fw-semibold">Result Decryption</h5>
+              <small class="text-muted">Only final totals are decrypted for results</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Storage Section -->
+      <section class="mb-5">
+        <h2 class="h3 fw-thin mb-4">Data Storage & Privacy</h2>
+        
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem;">
+                    <i class="bi bi-database fs-6"></i>
+                  </div>
+                  <h4 class="h5 fw-semibold mb-0">What We Store</h4>
+                </div>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Encrypted vote data</li>
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Election metadata (dates, candidates)</li>
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>User authentication credentials</li>
+                  <li class="mb-0"><i class="bi bi-x-circle text-danger me-2"></i>Individual vote choices (plaintext)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card border-0 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem;">
+                    <i class="bi bi-shield-lock fs-6"></i>
+                  </div>
+                  <h4 class="h5 fw-semibold mb-0">How We Store It</h4>
+                </div>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Encrypted at rest and in transit</li>
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Separated from voter identities</li>
+                  <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Immutable audit trails</li>
+                  <li class="mb-0"><i class="bi bi-check-circle text-success me-2"></i>Distributed backup systems</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Calculation -->
+      <section class="mb-5">
+        <h2 class="h3 fw-thin mb-4">Result Calculation Process</h2>
+        
+        <div class="card border-0 bg-light p-4 mb-4">
+          <h4 class="h5 fw-semibold mb-3">Secure Vote Tallying</h4>
+          <p class="mb-0">Results are calculated using homomorphic addition operations on encrypted votes, ensuring that individual ballot choices are never exposed during the counting process.</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="d-flex">
+              <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem; min-width: 2.5rem;">
+                <span class="fw-bold">1</span>
+              </div>
+              <div>
+                <h4 class="h5 fw-semibold mb-2">Vote Collection</h4>
+                <p class="text-muted mb-0">All encrypted votes are collected and verified for authenticity without decryption.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="d-flex">
+              <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem; min-width: 2.5rem;">
+                <span class="fw-bold">2</span>
+              </div>
+              <div>
+                <h4 class="h5 fw-semibold mb-2">Homomorphic Addition</h4>
+                <p class="text-muted mb-0">Encrypted votes are mathematically combined using homomorphic properties.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="d-flex">
+              <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem; min-width: 2.5rem;">
+                <span class="fw-bold">3</span>
+              </div>
+              <div>
+                <h4 class="h5 fw-semibold mb-2">Result Decryption</h4>
+                <p class="text-muted mb-0">Only the final tallied results are decrypted using the private key.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="d-flex">
+              <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 2.5rem; height: 2.5rem; min-width: 2.5rem;">
+                <span class="fw-bold">4</span>
+              </div>
+              <div>
+                <h4 class="h5 fw-semibold mb-2">Public Verification</h4>
+                <p class="text-muted mb-0">Results are published with cryptographic proofs for independent verification.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Guarantees -->
+      <section class="mb-5">
+        <h2 class="h3 fw-thin mb-4">Security Guarantees</h2>
+        
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card border-0 border-start border-success border-4 h-100">
+              <div class="card-body p-4">
+                <h4 class="h5 fw-semibold text-success mb-3">
+                  <i class="bi bi-shield-check me-2"></i>Privacy Protection
+                </h4>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Individual votes cannot be decrypted</li>
+                  <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Vote-to-voter linking is impossible</li>
+                  <li class="mb-2"><i class="bi bi-check text-success me-2"></i>Zero-knowledge verification proofs</li>
+                  <li class="mb-0"><i class="bi bi-check text-success me-2"></i>End-to-end encryption throughout</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-6">
+            <div class="card border-0 border-start border-primary border-4 h-100">
+              <div class="card-body p-4">
+                <h4 class="h5 fw-semibold text-primary mb-3">
+                  <i class="bi bi-eye me-2"></i>Transparency Assurance
+                </h4>
+                <ul class="list-unstyled mb-0">
+                  <li class="mb-2"><i class="bi bi-check text-primary me-2"></i>All election data is auditable</li>
+                  <li class="mb-2"><i class="bi bi-check text-primary me-2"></i>Cryptographic proof generation</li>
+                  <li class="mb-2"><i class="bi bi-check text-primary me-2"></i>Public verification mechanisms</li>
+                  <li class="mb-0"><i class="bi bi-check text-primary me-2"></i>Immutable audit trails</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cryptographic Implementation -->
+      <section class="mb-5">
+        <h2 class="h3 fw-thin mb-4">Technical Implementation</h2>
+        
+        <div class="accordion" id="technicalAccordion">
+          <div class="accordion-item border-0 mb-3">
+            <h3 class="accordion-header">
+              <button class="accordion-button bg-light border-0 fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#encryptionDetails" aria-expanded="true" aria-controls="encryptionDetails">
+                <i class="bi bi-gear me-2"></i>Encryption Algorithm Details
+              </button>
+            </h3>
+            <div id="encryptionDetails" class="accordion-collapse collapse show" data-bs-parent="#technicalAccordion">
+              <div class="accordion-body">
+                <p class="mb-3">We implement a partially homomorphic encryption scheme that supports addition operations on encrypted integers. This allows vote tallying without decryption.</p>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i><strong>Key Generation:</strong> Public/private key pairs generated for each election</li>
+                  <li class="mb-2"><i class="bi bi-arrow-right text-primary me-2"></i><strong>Vote Encoding:</strong> Candidate choices encoded as integers before encryption</li>
+                  <li class="mb-0"><i class="bi bi-arrow-right text-primary me-2"></i><strong>Homomorphic Addition:</strong> Encrypted votes summed without decryption</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item border-0 mb-3">
+            <h3 class="accordion-header">
+              <button class="accordion-button bg-light border-0 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#auditTrail" aria-expanded="false" aria-controls="auditTrail">
+                <i class="bi bi-list-check me-2"></i>Audit Trail & Verification
+              </button>
+            </h3>
+            <div id="auditTrail" class="accordion-collapse collapse" data-bs-parent="#technicalAccordion">
+              <div class="accordion-body">
+                <p class="mb-3">Every action in the system generates cryptographic proofs that can be independently verified without compromising voter privacy.</p>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-arrow-right text-success me-2"></i><strong>Vote Submission:</strong> Cryptographic receipt generated for each vote</li>
+                  <li class="mb-2"><i class="bi bi-arrow-right text-success me-2"></i><strong>Tally Verification:</strong> Zero-knowledge proofs validate counting accuracy</li>
+                  <li class="mb-0"><i class="bi bi-arrow-right text-success me-2"></i><strong>Result Integrity:</strong> Hash chains ensure no post-election tampering</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item border-0">
+            <h3 class="accordion-header">
+              <button class="accordion-button bg-light border-0 fw-semibold collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dataIntegrity" aria-expanded="false" aria-controls="dataIntegrity">
+                <i class="bi bi-database me-2"></i>Data Integrity & Backup
+              </button>
+            </h3>
+            <div id="dataIntegrity" class="accordion-collapse collapse" data-bs-parent="#technicalAccordion">
+              <div class="accordion-body">
+                <p class="mb-3">Multiple layers of protection ensure election data remains secure and recoverable throughout the entire process.</p>
+                <ul class="list-unstyled">
+                  <li class="mb-2"><i class="bi bi-arrow-right text-warning me-2"></i><strong>Distributed Storage:</strong> Election data replicated across multiple secure nodes</li>
+                  <li class="mb-2"><i class="bi bi-arrow-right text-warning me-2"></i><strong>Checksum Verification:</strong> Data integrity validated at every step</li>
+                  <li class="mb-0"><i class="bi bi-arrow-right text-warning me-2"></i><strong>Immutable Records:</strong> Blockchain-inspired append-only data structures</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Call to Action -->
+      <section class="mb-5">
+        <div class="card border-0 bg-primary text-white">
+          <div class="card-body p-4 text-center">
+            <h2 class="h3 fw-thin mb-3">Experience Secure Voting</h2>
+            <p class="mb-4">Our cryptographic approach ensures your vote remains private while maintaining complete transparency in election results.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+              {% if request.user.is_authenticated %}
+                <a href="{% url 'election_list' %}" class="btn btn-light btn-lg">
+                  <i class="bi bi-shield-check me-2"></i>View Secure Elections
+                </a>
+                <a href="{% url 'faqs' %}" class="btn btn-outline-light btn-lg">
+                  <i class="bi bi-question-circle me-2"></i>Learn More in FAQs
+                </a>
+              {% else %}
+                <a href="{% url 'login' %}" class="btn btn-light btn-lg">
+                  <i class="bi bi-box-arrow-in-right me-2"></i>Start Secure Voting
+                </a>
+                <a href="{% url 'faqs' %}" class="btn btn-outline-light btn-lg">
+                  <i class="bi bi-info-circle me-2"></i>Read FAQs
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
+
+</article>
+{% endblock %}

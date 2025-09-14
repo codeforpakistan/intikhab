@@ -112,6 +112,10 @@ def contact(request):
     
     return render(request, 'app/legal/contact.html')
 
-def faq(request):
+def faqs(request):
     """Frequently Asked Questions page"""
-    return render(request, 'app/legal/faq.html')
+    return render(request, 'app/legal/faqs.html')
+
+def how(request):
+    """How It Works page explaining the platform"""
+    return render(request, 'app/how.html')

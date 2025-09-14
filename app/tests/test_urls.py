@@ -36,7 +36,7 @@ class SimpleURLTestCase(BaseTestCase):
         """Test that public URLs return appropriate responses"""
         public_urls = [
             'index', 'terms', 'privacy', 'accessibility', 
-            'contact', 'faq', 'election_list', 'login'
+            'contact', 'faqs', 'election_list', 'login', 'how'
         ]
         
         for url_name in public_urls:
@@ -135,7 +135,7 @@ class SimpleURLTestCase(BaseTestCase):
     def test_all_url_patterns_resolvable(self):
         """Test that basic URL patterns can be resolved"""
         basic_patterns = [
-            'index', 'terms', 'privacy', 'accessibility', 'contact', 'faq',
+            'index', 'terms', 'privacy', 'accessibility', 'contact', 'faqs', 'how',
             'election_list', 'create_election', 'login'
         ]
         
