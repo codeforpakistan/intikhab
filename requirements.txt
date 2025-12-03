@@ -23,7 +23,7 @@ cryptography==45.0.7
     # via intikhab (pyproject.toml)
 dj-database-url==3.0.1
     # via intikhab (pyproject.toml)
-django==5.2.6
+django==5.2.9
     # via
     #   intikhab (pyproject.toml)
     #   dj-database-url
